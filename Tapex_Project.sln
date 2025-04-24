@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tapex_Project", "Tapex_Project\Tapex_Project.csproj", "{33725D3B-0ADE-4D86-B8EC-A7B1FDAE6BBA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33725D3B-0ADE-4D86-B8EC-A7B1FDAE6BBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33725D3B-0ADE-4D86-B8EC-A7B1FDAE6BBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33725D3B-0ADE-4D86-B8EC-A7B1FDAE6BBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33725D3B-0ADE-4D86-B8EC-A7B1FDAE6BBA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2720BDF0-FDE1-4193-B7E9-5C87BDBA86AE}
+	EndGlobalSection
+EndGlobal
