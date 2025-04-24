@@ -9,9 +9,19 @@
     Width="1200" Height="800">
     <Grid ColumnDefinitions="2*,1*">
         <views:ImageView   DataContext="{Binding ImageVM}" />
-        <Grid Grid.Column="1" RowDefinitions="1*,1*">
-            <views:ResultView    DataContext="{Binding ResultVM}"    />
-            <views:ParameterView DataContext="{Binding ParameterVM}" />
+        
+        <Grid Grid.Column="1" RowDefinitions="Auto * Auto">
+            <Button Grid.Row="0"
+                    Content="Detect"
+                    Command="{Binding DetectCmd}"
+                    Margin="4"
+                    HorizontalAlignment="Stretch"/>
+            
+            <views:ResultView Grid.Row="1"
+                              DataContext="{Binding ResultVM}" />
+            
+            <views:ParameterView Grid.Row="2" 
+                                 DataContext="{Binding ParameterVM}" />
         </Grid>
     </Grid>
 </Window>

@@ -8,7 +8,7 @@
     <StackPanel Spacing="6" Margin="8">
 
         <!-- Adaptive Threshold -->
-        <TextBlock Text="Adaptive Block Size (odd)" />
+        <TextBlock Text="Adaptive Block Size (px, odd)" />
         <NumericUpDown Minimum="3" Maximum="199"
                        Value="{Binding Config.AdaptiveBlockSize, Mode=TwoWay}" />
 
@@ -22,12 +22,14 @@
                        Value="{Binding Config.MorphKernel, Mode=TwoWay}" />
 
         <!-- Area Filter -->
-        <TextBlock Text="Min Area (px²)" />
-        <NumericUpDown Minimum="1" Maximum="100000"
+        <TextBlock Text="Min Area (mm²)" />
+        <NumericUpDown Minimum="0.001" Maximum="10"
+                       Increment="0.001"
                        Value="{Binding Config.MinAreaPx, Mode=TwoWay}" />
 
-        <TextBlock Text="Max Area (px²)" />
-        <NumericUpDown Minimum="1" Maximum="500000"
+        <TextBlock Text="Max Area (mm²)" />
+        <NumericUpDown Minimum="0.001" Maximum="100"
+                       Increment="0.001"
                        Value="{Binding Config.MaxAreaPx, Mode=TwoWay}" />
 
         <!-- Shape Filter -->
