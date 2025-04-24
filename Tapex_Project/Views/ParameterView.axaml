@@ -5,9 +5,35 @@
     xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
     x:DataType="vm:ParameterViewModel">
 
-    <StackPanel Spacing="4">
-        <TextBlock Text="Threshold"/>
-        <NumericUpDown Minimum="0" Maximum="255"
-                       Value="{Binding Config.Threshold, Mode=TwoWay}" />
+    <StackPanel Spacing="6" Margin="8">
+
+        <!-- Adaptive Threshold -->
+        <TextBlock Text="Adaptive Block Size (odd)" />
+        <NumericUpDown Minimum="3" Maximum="199"
+                       Value="{Binding Config.AdaptiveBlockSize, Mode=TwoWay}" />
+
+        <TextBlock Text="Adaptive C" />
+        <NumericUpDown Minimum="-50" Maximum="50"
+                       Value="{Binding Config.AdaptiveC, Mode=TwoWay}" />
+
+        <!-- Morphology -->
+        <TextBlock Text="Morph Kernel (px)" />
+        <NumericUpDown Minimum="1" Maximum="15"
+                       Value="{Binding Config.MorphKernel, Mode=TwoWay}" />
+
+        <!-- Area Filter -->
+        <TextBlock Text="Min Area (px²)" />
+        <NumericUpDown Minimum="1" Maximum="100000"
+                       Value="{Binding Config.MinAreaPx, Mode=TwoWay}" />
+
+        <TextBlock Text="Max Area (px²)" />
+        <NumericUpDown Minimum="1" Maximum="500000"
+                       Value="{Binding Config.MaxAreaPx, Mode=TwoWay}" />
+
+        <!-- Shape Filter -->
+        <TextBlock Text="Min Circularity (0–1)" />
+        <Slider Minimum="0" Maximum="1" TickFrequency="0.05"
+                Value="{Binding Config.MinCircularity, Mode=TwoWay}" />
+
     </StackPanel>
 </UserControl>
