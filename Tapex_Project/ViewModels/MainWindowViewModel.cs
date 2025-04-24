@@ -1,4 +1,5 @@
 ﻿using Tapex_Project.Models;
+using Tapex_Project.Models.Detection;
 using Tapex_Project.Services;
 using System.ComponentModel;
 
@@ -40,7 +41,9 @@ public sealed class MainWindowViewModel : ViewModelBase
         if (ImageVM.Current is not null) return;
 
         var detector = new Detector();
-        var results = detector.Run(ImageVM.Current.FullBitmap, ParameterVM.Config);
+        var results = detector.Run(
+            ImageVM.Current.FullBitmap,
+            ParameterVM.Config);
 
         ResultVM.Update(results);
     }
