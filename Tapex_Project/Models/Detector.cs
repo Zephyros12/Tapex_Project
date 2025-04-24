@@ -46,27 +46,24 @@ namespace Tapex_Project.Models
 
             // 1) Bitmap → BGR Mat
             using var srcColor = BitmapToMat(bmp);
-            SaveMat("00_srcColor.png", srcColor);
 
             // 2) BGR → Gray
             using var gray = new Mat();
             CvInvoke.CvtColor(srcColor, gray, ColorConversion.Bgr2Gray);
-            SaveMat("01_gray.png", gray);
 
             // 3) 글로벌 평탄화
             int globalPx = (int)Math.Round(UnitHelper.MmToPx(cfg.Circle.FlattenRadiusMm));
             using var flat = Preprocess.FlattenBackground(gray, globalPx);
-            SaveMat("02_flatGlobal.png", flat);
+            SaveMat("00_flatGlobal.png", flat);
 
             // 4) 반원 검출 및 ROI 마스킹
             var circle = SemiCircleLocator.DetectClippedCircle(flat)
                          ?? throw new InvalidOperationException("반원 검출 실패: Circle 파라미터 조정 필요");
             using var mask = RoiMask.CreateSemicircleMask(srcColor.Width, srcColor.Height, circle);
-            SaveMat("03_mask.png", mask);
+            SaveMat("01_mask.png", mask);
 
             using var roi = new Mat();
             CvInvoke.BitwiseAnd(flat, flat, roi, mask);
-            SaveMat("04_roiGray.png", roi);
 
             // 5) 타일 기반 병렬 서브-검출
             int width = roi.Width;
@@ -85,9 +82,7 @@ namespace Tapex_Project.Models
             Parallel.ForEach(rects, rect =>
             {
                 using var tileMat = new Mat(roi, rect);
-                // 디버깅용: 타일 저장
-                SaveMat($"TILE_{rect.X}_{rect.Y}.png", tileMat);
-
+                
                 foreach (var det in _subDetectors)
                 {
                     var list = det.Run(tileMat, cfg);
