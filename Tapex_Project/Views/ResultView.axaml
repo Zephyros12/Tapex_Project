@@ -8,8 +8,12 @@
     <ListBox ItemsSource="{Binding Results}">
         <ListBox.ItemTemplate>
             <DataTemplate>
-                <TextBlock
-                    Text="{Binding X, StringFormat='X={0:F0}'}" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding Xmm, StringFormat='X={0:F2} mm'}" />
+                    <TextBlock Text="{Binding Ymm, StringFormat='Y={0:F2} mm'}" />
+                    <TextBlock Text="{Binding WidthMm, StringFormat='W={0:F2} mm'}" />
+                    <TextBlock Text="{Binding HeightMm, StringFormat='H={0:F2} mm'}" />
+                </StackPanel>
             </DataTemplate>
         </ListBox.ItemTemplate>
     </ListBox>
