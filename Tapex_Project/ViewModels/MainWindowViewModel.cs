@@ -1,50 +1,38 @@
 ﻿using Tapex_Project.Models;
 using Tapex_Project.Models.Detection;
 using Tapex_Project.Services;
-using System.ComponentModel;
 
-namespace Tapex_Project.ViewModels;
-
-public sealed class MainWindowViewModel : ViewModelBase
+namespace Tapex_Project.ViewModels
 {
-    public ImageViewModel ImageVM { get; }
-    public ResultViewModel ResultVM { get; } = new();
-    public ParameterViewModel ParameterVM { get; } = new();
-
-    public RelayCommand DetectCmd { get; }
-
-    public string Title => "Tapex Project";
-
-    public MainWindowViewModel(IFilePickerService picker)
+    /// <summary>
+    /// MainWindow의 ViewModel: 하위 VM과 Detect 명령 연결
+    /// </summary>
+    public class MainWindowViewModel : ViewModelBase
     {
-        ImageVM = new ImageViewModel(picker);
+        public ImageViewModel ImageVM { get; }
+        public ResultViewModel ResultVM { get; } = new();
+        public ParameterViewModel ParameterVM { get; } = new();
+        public RelayCommand DetectCmd { get; }
 
-        DetectCmd = new RelayCommand(_ => Detect(), _ => ImageVM.Current is not null);
-
-        ImageVM.PropertyChanged += ImageVmOnPropertyChanged;
-
-        ResultVM.PropertyChanged += (_, e) =>
+        public MainWindowViewModel(IFilePickerService picker)
         {
-            if (e.PropertyName == nameof(ResultViewModel.SelectedResult))
-                ImageVM.SelectedResult = ResultVM.SelectedResult;
-        };
-    }
+            ImageVM = new ImageViewModel(picker);
 
-    private void ImageVmOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(ImageViewModel.Current))
-            DetectCmd.NotifyCanExecuteChanged();
-    }
+            DetectCmd = new RelayCommand(_ => Detect(), _ => ImageVM.Current != null);
+            ImageVM.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(ImageViewModel.Current))
+                    DetectCmd.NotifyCanExecuteChanged();
+            };
+        }
 
-    private void Detect()
-    {
-        if (ImageVM.Current is not null) return;
+        private void Detect()
+        {
+            if (ImageVM.Current == null) return;
 
-        var detector = new Detector();
-        var results = detector.Run(
-            ImageVM.Current.FullBitmap,
-            ParameterVM.Config);
-
-        ResultVM.Update(results);
+            var detector = new Detector();
+            var results = detector.Run(ImageVM.Current.FullBitmap, ParameterVM.Config);
+            ResultVM.Update(results);
+        }
     }
 }

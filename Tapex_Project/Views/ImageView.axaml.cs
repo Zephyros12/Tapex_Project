@@ -1,11 +1,15 @@
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 
-namespace Tapex_Project.Views;
-
-public partial class ImageView : UserControl
+namespace Tapex_Project.Views
 {
-    public ImageView()
+    public partial class ImageView : UserControl
     {
-       InitializeComponent();
+        public ImageView()
+        {
+            InitializeComponent();
+        }
+
+        private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
     }
 }

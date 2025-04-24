@@ -1,40 +1,20 @@
 <UserControl
-    x:Class="Tapex_Project.Views.ImageView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
+    x:Class="Tapex_Project.Views.ImageView"
     x:DataType="vm:ImageViewModel">
 
-    <Grid RowDefinitions="* Auto">
-        <ScrollViewer Grid.Row="0"
-                      HorizontalScrollBarVisibility="Auto"
+    <StackPanel Orientation="Vertical">
+        <Button Content="Load"
+                Command="{Binding LoadCmd}"
+                Margin="4" />
+        <ScrollViewer HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Auto">
-            <Grid>
-                <Image Source="{Binding Current.DisplayBitmap}"
-                       Stretch="None"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center" />
-
-                <Canvas IsHitTestVisible="False">
-                    <Rectangle Stroke="Red"
-                               StrokeThickness="2"
-                               IsVisible="{Binding OverlayVisible}"
-                               Canvas.Left="{Binding OverlayX}"
-                               Canvas.Top="{Binding OverlayY}"
-                               Width="{Binding OverlayW}"
-                               Height="{Binding OverlayH}"/>
-                </Canvas>
-            </Grid>
+            <Image Source="{Binding Current.DisplayBitmap}"
+                   Stretch="Uniform"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center" />
         </ScrollViewer>
-
-        <StackPanel Grid.Row="1"
-                    Orientation="Horizontal"
-                    Spacing="4"
-                    HorizontalAlignment="Center"
-                    Margin="0,8,0,0">
-            <Button Content="Load" Command="{Binding LoadCmd}" />
-            <Button Content="Prev" Command="{Binding PrevCmd}" />
-            <Button Content="Next" Command="{Binding NextCmd}" />
-        </StackPanel>
-    </Grid>
+    </StackPanel>
 </UserControl>

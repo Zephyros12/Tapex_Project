@@ -1,50 +1,59 @@
 ﻿using System;
+using System.IO;
 using Avalonia.Media.Imaging;
 using SkiaSharp;
-using System.IO;
 
-namespace Tapex_Project.Models;
-
-public sealed class ImageModel
+namespace Tapex_Project.Models
 {
-    public string FilePath { get; init; } = string.Empty;
-    public Bitmap FullBitmap { get; init; } = null!;
-    public Bitmap DisplayBitmap { get; init; } = null!;
-    public double ScaleFactor { get; init; }
-
-    public static ImageModel FromFile(string path, int maxEdge = 2048)
+    /// <summary>
+    /// 원본 이미지와 화면용 축소 이미지를 함께 관리하는 모델
+    /// </summary>
+    public sealed class ImageModel
     {
-        using var fs = File.OpenRead(path);
-        var full = new Bitmap(fs);
+        public string FilePath { get; init; } = string.Empty;
+        public Bitmap FullBitmap { get; init; } = null!;   // 원본
+        public Bitmap DisplayBitmap { get; init; } = null!; // 축소본
+        public double ScaleFactor { get; init; }           // 축소 비율 (Display / Full)
 
-        var w = full.PixelSize.Width;
-        var h = full.PixelSize.Height;
-        var scale = Math.Min(1.0, maxEdge / (double)Math.Max(w, h));
-
-        Bitmap display;
-        if (scale < 1.0)
+        /// <summary>
+        /// 파일 경로로부터 원본 및 축소 이미지를 생성합니다.
+        /// </summary>
+        /// <param name="maxEdge">축소본 최대 한 변 길이 (픽셀)</param>
+        public static ImageModel FromFile(string path, int maxEdge = 2048)
         {
-            var targetW = (int)(w* scale);
-            var targetH = (int)(h* scale);
+            // 원본 비트맵 로드
+            using var fs = File.OpenRead(path);
+            var full = new Bitmap(fs);
 
-            using var skBitmap = SKBitmap.Decode(path);
-            using var resized = skBitmap.Resize(new SKImageInfo(targetW, targetH), SKFilterQuality.Medium)!;
+            // 원본 크기
+            var w = full.PixelSize.Width;
+            var h = full.PixelSize.Height;
+            var scale = Math.Min(1.0, maxEdge / (double)Math.Max(w, h));
 
-            using var image = SKImage.FromBitmap(resized);
-            using var data = image.Encode(SKEncodedImageFormat.Png, 90);
-            display = new Bitmap(data.AsStream());
+            Bitmap disp;
+            if (scale < 1.0)
+            {
+                int targetW = (int)(w * scale);
+                int targetH = (int)(h * scale);
+
+                using var sk = SKBitmap.Decode(path);
+                using var resized = sk.Resize(new SKImageInfo(targetW, targetH), SKFilterQuality.Medium)!;
+                using var img = SKImage.FromBitmap(resized);
+                using var encoded = img.Encode(SKEncodedImageFormat.Png, 90);
+                disp = new Bitmap(encoded.AsStream());
+            }
+            else
+            {
+                disp = full;
+            }
+
+            return new ImageModel
+            {
+                FilePath = path,
+                FullBitmap = full,
+                DisplayBitmap = disp,
+                ScaleFactor = scale
+            };
         }
-        else
-        {
-            display = full;
-        }
-
-        return new ImageModel
-        {
-            FilePath = path,
-            FullBitmap = full,
-            DisplayBitmap = display,
-            ScaleFactor = scale
-        };
     }
 }

@@ -1,16 +1,22 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using Tapex_Project.Services;
 using Tapex_Project.ViewModels;
 
-namespace Tapex_Project.Views;
-
-public partial class MainWindow : Window
+namespace Tapex_Project.Views
 {
-    public MainWindow()
+    public partial class MainWindow : Window
     {
-        InitializeComponent();
+        public MainWindow()
+        {
+            InitializeComponent();
+#if DEBUG
+            this.AttachDevTools();
+#endif
+            DataContext = new MainWindowViewModel(new FilePickerServiceAvalonia(this));
+        }
 
-        var picker = new FilePickerServiceAvalonia(this);
-        DataContext = new MainWindowViewModel(picker);
+        private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
     }
 }

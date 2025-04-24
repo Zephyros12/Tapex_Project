@@ -1,88 +1,12 @@
 <UserControl
-    x:Class="Tapex_Project.Views.ParameterView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
+    x:Class="Tapex_Project.Views.ParameterView"
     x:DataType="vm:ParameterViewModel">
 
-    <TabControl>
-
-        <!-- Common: 반원 검출 & 배경 평탄화 -->
-        <TabItem Header="Common">
-            <StackPanel Spacing="6" Margin="8">
-                <TextBlock Text="Min Radius (mm)" />
-                <NumericUpDown Minimum="10" Maximum="500"
-                               Increment="1"
-                               Value="{Binding Config.Circle.MinRadiusMm, Mode=TwoWay}" />
-
-                <TextBlock Text="Max Radius (mm)" />
-                <NumericUpDown Minimum="10" Maximum="500"
-                               Increment="1"
-                               Value="{Binding Config.Circle.MaxRadiusMm, Mode=TwoWay}" />
-
-                <TextBlock Text="Hough dp (resolution)" />
-                <NumericUpDown Minimum="1" Maximum="5" Increment="0.1"
-                               Value="{Binding Config.Circle.Dp, Mode=TwoWay}" />
-
-                <TextBlock Text="Canny High Threshold" />
-                <NumericUpDown Minimum="10" Maximum="500"
-                               Increment="1"
-                               Value="{Binding Config.Circle.Param1, Mode=TwoWay}" />
-
-                <TextBlock Text="Accumulator Threshold" />
-                <NumericUpDown Minimum="10" Maximum="500"
-                               Increment="1"
-                               Value="{Binding Config.Circle.Param2, Mode=TwoWay}" />
-
-                <TextBlock Text="Flatten Radius (mm)" />
-                <NumericUpDown Minimum="0.5" Maximum="20"
-                               Increment="0.5"
-                               Value="{Binding Config.Circle.FlattenRadiusMm, Mode=TwoWay}" />
-            </StackPanel>
-        </TabItem>
-
-        <!-- Bubble: 기포 검출 -->
-        <TabItem Header="Bubble">
-            <StackPanel Spacing="6" Margin="8">
-                <TextBlock Text="Min Diameter (mm)" />
-                <NumericUpDown Minimum="0.1" Maximum="10"
-                               Increment="0.1"
-                               Value="{Binding Config.Bubble.MinDiameterMm, Mode=TwoWay}" />
-
-                <TextBlock Text="Max Diameter (mm)" />
-                <NumericUpDown Minimum="0.1" Maximum="10"
-                               Increment="0.1"
-                               Value="{Binding Config.Bubble.MaxDiameterMm, Mode=TwoWay}" />
-
-                <TextBlock Text="Min Circularity (0–1)" />
-                <Slider Minimum="0" Maximum="1" TickFrequency="0.05"
-                        Value="{Binding Config.Bubble.MinCircularity, Mode=TwoWay}" />
-            </StackPanel>
-        </TabItem>
-
-        <!-- Scratch: 긁힘 검출 (추후 구현) -->
-        <TabItem Header="Scratch">
-            <StackPanel Spacing="6" Margin="8">
-                <!-- 예: MinLengthMm, MaxWidthMm, SobelThresh 등 바인딩 -->
-                <TextBlock Text="(Scratch parameters here)" Foreground="Gray"/>
-            </StackPanel>
-        </TabItem>
-
-        <!-- Dust: 먼지 검출 (추후 구현) -->
-        <TabItem Header="Dust">
-            <StackPanel Spacing="6" Margin="8">
-                <!-- 예: MaxDiameterMm, MinContrastGray 등 바인딩 -->
-                <TextBlock Text="(Dust parameters here)" Foreground="Gray"/>
-            </StackPanel>
-        </TabItem>
-
-        <!-- Crack: 크랙 검출 (추후 구현) -->
-        <TabItem Header="Crack">
-            <StackPanel Spacing="6" Margin="8">
-                <!-- 예: MinLengthMm, CannyLow, CannyHigh 등 바인딩 -->
-                <TextBlock Text="(Crack parameters here)" Foreground="Gray"/>
-            </StackPanel>
-        </TabItem>
-
-    </TabControl>
+    <StackPanel Margin="8" Spacing="4">
+        <TextBlock Text="Parameters" FontWeight="Bold" />
+        <!-- 추후 DetectionConfig 바인딩 컨트롤 추가 -->
+    </StackPanel>
 </UserControl>

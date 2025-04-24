@@ -1,27 +1,33 @@
 <Window
-   x:Class="Tapex_Project.Views.MainWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:views="clr-namespace:Tapex_Project.Views"
     xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
+    x:Class="Tapex_Project.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
-    Title="{Binding Title}"
-    Width="1200" Height="800">
+    Title="Tapex Project"
+    Width="1024" Height="768">
+
     <Grid ColumnDefinitions="2*,1*">
-        <views:ImageView   DataContext="{Binding ImageVM}" />
-        
-        <Grid Grid.Column="1" RowDefinitions="Auto * Auto">
+        <!-- 좌측: 이미지 + Load 버튼 -->
+        <views:ImageView Grid.Column="0" DataContext="{Binding ImageVM}" />
+
+        <!-- 우측: Detect 버튼, 결과, 파라미터 -->
+        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+            <!-- Detect -->
             <Button Grid.Row="0"
                     Content="Detect"
                     Command="{Binding DetectCmd}"
-                    Margin="4"
-                    HorizontalAlignment="Stretch"/>
-            
+                    Margin="4" />
+
+            <!-- Results -->
             <views:ResultView Grid.Row="1"
-                              DataContext="{Binding ResultVM}" />
-            
-            <views:ParameterView Grid.Row="2" 
-                                 DataContext="{Binding ParameterVM}" />
+                              DataContext="{Binding ResultVM}"
+                              Margin="4" />
+
+            <!-- Parameters -->
+            <views:ParameterView Grid.Row="2"
+                                DataContext="{Binding ParameterVM}" />
         </Grid>
     </Grid>
 </Window>

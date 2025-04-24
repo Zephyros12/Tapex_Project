@@ -1,21 +1,14 @@
 <UserControl
-    x:Class="Tapex_Project.Views.ResultView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
+    x:Class="Tapex_Project.Views.ResultView"
     x:DataType="vm:ResultViewModel">
 
-    <ListBox ItemsSource="{Binding Results}"
-             SelectedItem="{Binding SelectedResult, Mode=TwoWay}"
-             SelectionMode="Single">
+    <ListBox ItemsSource="{Binding Results}" Margin="4">
         <ListBox.ItemTemplate>
             <DataTemplate>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="{Binding Xmm, StringFormat='X={0:F2} mm'}" />
-                    <TextBlock Text="{Binding Ymm, StringFormat='Y={0:F2} mm'}" />
-                    <TextBlock Text="{Binding WidthMm, StringFormat='W={0:F2} mm'}" />
-                    <TextBlock Text="{Binding HeightMm, StringFormat='H={0:F2} mm'}" />
-                </StackPanel>
+                <TextBlock Text="{Binding Type}" />
             </DataTemplate>
         </ListBox.ItemTemplate>
     </ListBox>

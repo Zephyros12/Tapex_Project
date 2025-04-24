@@ -1,9 +1,12 @@
-﻿using System;
-using Tapex_Project.Models.Detection;
+﻿using Tapex_Project.Models.Detection;
 
-namespace Tapex_Project.ViewModels;
-
-public sealed class ParameterViewModel : ViewModelBase
+namespace Tapex_Project.ViewModels
 {
-    public DetectionConfig Config { get; } = new();
+    /// <summary>
+    /// ParameterView의 ViewModel: DetectionConfig 노출
+    /// </summary>
+    public class ParameterViewModel : ViewModelBase
+    {
+        public DetectionConfig Config { get; } = new();
+    }
 }
