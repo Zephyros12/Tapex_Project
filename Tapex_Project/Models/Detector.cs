@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Avalonia.Media.Imaging;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
@@ -14,23 +15,26 @@ namespace Tapex_Project.Models
             // TODO: ScratchDetector, DustDetector, CrackDetector 추가
         };
 
+        // Models/Detector.cs
         public IReadOnlyList<DefectResult> Run(Bitmap bmp, DetectionConfig cfg)
         {
-            // 1) Bitmap → Mat (컬러)
+            // 1) Bitmap → 컬러 Mat
             using var srcColor = BitmapToMat(bmp);
 
             // 2) 컬러 → 그레이
             using var gray = new Mat();
             CvInvoke.CvtColor(srcColor, gray, ColorConversion.Bgr2Gray);
 
-            // 3) 각 서브-검출기에 평탄화된 gray Mat 전달
-            var results = new List<DefectResult>();
-            foreach (var det in _subDetectors)
-            {
-                results.AddRange(det.Run(gray, cfg));
-            }
+            // 3) 전체 이미지 전역 평탄화
+            var flatGlobal = PreprocessingCommon.FlattenGlobal(
+                gray,
+                cfg.Circle.FlattenRadiusMm  // UI 상에서 설정 가능한 mm 단위 값
+            );
 
-            return results;
+            // 여기까지 확인: flatGlobal 영상만 복사해서 Imshow 등으로 띄워 보세요.
+
+            // → Phase 2(반원 검출, ROI 마스킹 등) 준비
+            return Array.Empty<DefectResult>();
         }
 
         // Bitmap → Mat 변환 헬퍼
