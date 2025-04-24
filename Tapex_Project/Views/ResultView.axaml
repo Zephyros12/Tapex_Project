@@ -1,0 +1,16 @@
+<UserControl
+    x:Class="Tapex_Project.Views.ResultView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
+    x:DataType="vm:ResultViewModel">
+
+    <ListBox ItemsSource="{Binding Results}">
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <TextBlock
+                    Text="{Binding X, StringFormat='X={0:F0}'}" />
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
+</UserControl>

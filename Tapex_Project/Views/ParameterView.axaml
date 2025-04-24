@@ -1,0 +1,13 @@
+<UserControl
+    x:Class="Tapex_Project.Views.ParameterView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
+    x:DataType="vm:ParameterViewModel">
+
+    <StackPanel Spacing="4">
+        <TextBlock Text="Threshold"/>
+        <NumericUpDown Minimum="0" Maximum="255"
+                       Value="{Binding Config.Threshold, Mode=TwoWay}" />
+    </StackPanel>
+</UserControl>
