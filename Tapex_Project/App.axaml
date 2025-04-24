@@ -3,7 +3,6 @@
              x:Class="Tapex_Project.App"
              xmlns:local="using:Tapex_Project"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
         <local:ViewLocator/>

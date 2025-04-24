@@ -9,13 +9,24 @@
         <ScrollViewer Grid.Row="0"
                       HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Auto">
-            <Image Source="{Binding Current.DisplayBitmap}"
-                   Stretch="Uniform"
-                   StretchDirection="DownOnly"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
+            <Grid>
+                <Image Source="{Binding Current.DisplayBitmap}"
+                       Stretch="None"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+
+                <Canvas IsHitTestVisible="False">
+                    <Rectangle Stroke="Red"
+                               StrokeThickness="2"
+                               IsVisible="{Binding OverlayVisible}"
+                               Canvas.Left="{Binding OverlayX}"
+                               Canvas.Top="{Binding OverlayY}"
+                               Width="{Binding OverlayW}"
+                               Height="{Binding OverlayH}"/>
+                </Canvas>
+            </Grid>
         </ScrollViewer>
-        
+
         <StackPanel Grid.Row="1"
                     Orientation="Horizontal"
                     Spacing="4"

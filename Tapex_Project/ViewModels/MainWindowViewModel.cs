@@ -1,5 +1,6 @@
 ﻿using Tapex_Project.Models;
 using Tapex_Project.Services;
+using System.ComponentModel;
 
 namespace Tapex_Project.ViewModels;
 
@@ -18,11 +19,20 @@ public sealed class MainWindowViewModel : ViewModelBase
         ImageVM = new ImageViewModel(picker);
 
         DetectCmd = new RelayCommand(_ => Detect(), _ => ImageVM.Current is not null);
-        ImageVM.PropertyChanged += (_, e) =>
+
+        ImageVM.PropertyChanged += ImageVmOnPropertyChanged;
+
+        ResultVM.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(ImageViewModel.Current))
-                DetectCmd.NotifyCanExecuteChanged();
+            if (e.PropertyName == nameof(ResultViewModel.SelectedResult))
+                ImageVM.SelectedResult = ResultVM.SelectedResult;
         };
+    }
+
+    private void ImageVmOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ImageViewModel.Current))
+            DetectCmd.NotifyCanExecuteChanged();
     }
 
     private void Detect()

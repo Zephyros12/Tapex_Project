@@ -14,4 +14,11 @@ public sealed class ResultViewModel : ViewModelBase
         Results.Clear();
         foreach (var r in src) Results.Add(r);
     }
+
+    private DefectResult? _selected;
+    public DefectResult? SelectedResult
+    {
+        get => _selected;
+        set { _selected = value; RaisePropertyChanged(); }
+    }
 }

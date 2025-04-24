@@ -5,7 +5,9 @@
     xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
     x:DataType="vm:ResultViewModel">
 
-    <ListBox ItemsSource="{Binding Results}">
+    <ListBox ItemsSource="{Binding Results}"
+             SelectedItem="{Binding SelectedResult, Mode=TwoWay}"
+             SelectionMode="Single">
         <ListBox.ItemTemplate>
             <DataTemplate>
                 <StackPanel Orientation="Horizontal" Spacing="8">

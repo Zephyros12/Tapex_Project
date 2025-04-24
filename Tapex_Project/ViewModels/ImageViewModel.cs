@@ -12,7 +12,11 @@ public sealed class ImageViewModel : ViewModelBase
     public ImageModel? Current
     {
         get => _current;
-        private set { _current = value; RaisePropertyChanged(); }
+        private set 
+        { 
+            _current = value; 
+            RaisePropertyChanged(); 
+        }
     }
 
     public RelayCommand LoadCmd { get; }
@@ -39,5 +43,40 @@ public sealed class ImageViewModel : ViewModelBase
         Current = _ldr.Current();
         NextCmd.NotifyCanExecuteChanged();
         PrevCmd.NotifyCanExecuteChanged();
+    }
+
+    private DefectResult? _selected;
+    public DefectResult? SelectedResult
+    {
+        get => _selected;
+        set
+        {
+            _selected = value;
+            UpdateOverlay();
+        }
+    }
+
+    private double _ox, _oy, _ow, _oh;
+    public double OverlayX { get => _ox; private set { _ox = value; RaisePropertyChanged(); } }
+    public double OverlayY { get => _oy; private set { _oy = value; RaisePropertyChanged(); } }
+    public double OverlayW { get => _ow; private set { _ow = value; RaisePropertyChanged(); } }
+    public double OverlayH { get => _oh; private set { _oh = value; RaisePropertyChanged(); } }
+    public bool OverlayVisible => _ow > 0 && _oh > 0;
+
+    private void UpdateOverlay()
+    {
+        if (Current is null || SelectedResult is null)
+        {
+            OverlayW = OverlayH = 0;
+            return;
+        }
+
+        var s = Current.ScaleFactor;
+        OverlayX = SelectedResult.X * s;
+        OverlayY = SelectedResult.Y * s;
+        OverlayW = SelectedResult.Width * s;
+        OverlayH = SelectedResult.Height * s;
+
+        RaisePropertyChanged(nameof(OverlayVisible));
     }
 }
