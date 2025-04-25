@@ -8,79 +8,188 @@
 
     <StackPanel Margin="8" Spacing="12">
         <TextBlock
-          Text="Detection Parameters"
+          Text="Parameters"
           FontWeight="Bold"
           FontSize="16" />
 
-        <!-- Grid 로 레이블과 입력부를 정렬하되, ColumnSpacing/RowSpacing 대신 Margin 사용 -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="80" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <TabControl>
+            <!-- 1) General (전역 필터) -->
+            <TabItem Header="General">
+                <ScrollViewer Padding="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-            <!-- 1행: Pixel Size -->
-            <TextBlock
-              Grid.Row="0" Grid.Column="0"
-              Text="Pixel Size (μm):"
-              VerticalAlignment="Center"
-              Margin="0,0,8,8"/>
-            <TextBlock
-              Grid.Row="0" Grid.Column="1"
-              Text="{Binding Config.PixelSizeMicrometer}"
-              VerticalAlignment="Center"
-              Margin="0,0,0,8"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Pixel Size (μm):" Margin="0,0,8,8" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Config.PixelSizeMicrometer}" Margin="0,0,0,8" VerticalAlignment="Center"/>
 
-            <!-- 2행: Min Defect Size (mm) -->
-            <TextBlock
-              Grid.Row="1" Grid.Column="0"
-              Text="Min Defect Size (mm):"
-              VerticalAlignment="Center"
-              Margin="0,0,8,8"/>
-            <controls:NumericUpDown
-              Grid.Row="1" Grid.Column="1"
-              Minimum="0.01"
-              Maximum="1000"
-              Increment="0.01"
-              Value="{Binding Config.MinDefectSizeMm, Mode=TwoWay}"
-              HorizontalAlignment="Left"
-              Margin="0,0,0,8"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Defect Size (mm):" Margin="0,0,8,8" VerticalAlignment="Center"/>
+                        <controls:NumericUpDown
+                          Grid.Row="1" Grid.Column="1"
+                          Minimum="0.01" Maximum="1000" Increment="0.01"
+                          Value="{Binding Config.MinDefectSizeMm, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
 
-            <!-- 3행: Brightness Threshold -->
-            <TextBlock
-              Grid.Row="2" Grid.Column="0"
-              Text="Brightness Thr:"
-              VerticalAlignment="Center"
-              Margin="0,0,8,8"/>
-            <controls:NumericUpDown
-              Grid.Row="2" Grid.Column="1"
-              Minimum="0"
-              Maximum="255"
-              Increment="0.1"
-              Value="{Binding Config.BrightnessThreshold, Mode=TwoWay}"
-              HorizontalAlignment="Left"
-              Margin="0,0,0,8"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Brightness Thr:" Margin="0,0,8,8" VerticalAlignment="Center"/>
+                        <controls:NumericUpDown
+                          Grid.Row="2" Grid.Column="1"
+                          Minimum="0" Maximum="255" Increment="0.1"
+                          Value="{Binding Config.BrightnessThreshold, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
 
-            <!-- 4행: Sharpness Threshold -->
-            <TextBlock
-              Grid.Row="3" Grid.Column="0"
-              Text="Sharpness Thr:"
-              VerticalAlignment="Center"
-              Margin="0,0,8,0"/>
-            <controls:NumericUpDown
-              Grid.Row="3" Grid.Column="1"
-              Minimum="0"
-              Maximum="1000"
-              Increment="1"
-              Value="{Binding Config.SharpnessThreshold, Mode=TwoWay}"
-              HorizontalAlignment="Left"
-              Margin="0,0,0,0"/>
-        </Grid>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Sharpness Thr:" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <controls:NumericUpDown
+                          Grid.Row="3" Grid.Column="1"
+                          Minimum="0" Maximum="1000" Increment="1"
+                          Value="{Binding Config.SharpnessThreshold, Mode=TwoWay}"
+                          Width="80"/>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- 2) Bubble 전처리 파라미터 -->
+            <TabItem Header="Bubble">
+                <ScrollViewer Padding="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Morph Kernel Size:" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="0" Grid.Column="1"
+                          Minimum="1" Maximum="51" Increment="2"
+                          Value="{Binding BubbleParams.MorphKernelSize, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Threshold:" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="1" Grid.Column="1"
+                          Minimum="0" Maximum="255" Increment="1"
+                          Value="{Binding BubbleParams.Threshold, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Value:" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="2" Grid.Column="1"
+                          Minimum="0" Maximum="255" Increment="1"
+                          Value="{Binding BubbleParams.MaxValue, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Min Area (px):" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="3" Grid.Column="1"
+                          Minimum="0" Maximum="10000" Increment="1"
+                          Value="{Binding BubbleParams.MinArea, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Min Width (px):" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="4" Grid.Column="1"
+                          Minimum="1" Maximum="1000" Increment="1"
+                          Value="{Binding BubbleParams.MinWidth, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Min Height (px):" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="5" Grid.Column="1"
+                          Minimum="1" Maximum="1000" Increment="1"
+                          Value="{Binding BubbleParams.MinHeight, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Min Circularity:" Margin="0,0,8,0"/>
+                        <controls:NumericUpDown
+                          Grid.Row="6" Grid.Column="1"
+                          Minimum="0" Maximum="1" Increment="0.01"
+                          Value="{Binding BubbleParams.MinCircularity, Mode=TwoWay}"
+                          Width="80"/>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- 3) Dust 전처리 파라미터 -->
+            <TabItem Header="Dust">
+                <ScrollViewer Padding="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Threshold:" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="0" Grid.Column="1"
+                          Minimum="0" Maximum="255" Increment="1"
+                          Value="{Binding DustParams.Threshold, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Area (px):" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="1" Grid.Column="1"
+                          Minimum="0" Maximum="10000" Increment="1"
+                          Value="{Binding DustParams.MinArea, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Area (px):" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="2" Grid.Column="1"
+                          Minimum="0" Maximum="10000" Increment="1"
+                          Value="{Binding DustParams.MaxArea, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Morph Kernel:" Margin="0,0,8,0"/>
+                        <controls:NumericUpDown
+                          Grid.Row="3" Grid.Column="1"
+                          Minimum="1" Maximum="51" Increment="2"
+                          Value="{Binding DustParams.MorphKernel, Mode=TwoWay}"
+                          Width="80"/>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- 4) Scratch -->
+            <TabItem Header="Scratch">
+                <ScrollViewer Padding="8">
+                    <TextBlock
+                      Text="No preprocess parameters defined."
+                      FontStyle="Italic"
+                      Foreground="Gray"/>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- 5) Crack -->
+            <TabItem Header="Crack">
+                <ScrollViewer Padding="8">
+                    <TextBlock
+                      Text="No preprocess parameters defined."
+                      FontStyle="Italic"
+                      Foreground="Gray"/>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
     </StackPanel>
 </UserControl>
