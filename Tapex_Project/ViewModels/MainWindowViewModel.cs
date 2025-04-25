@@ -40,9 +40,11 @@ namespace Tapex_Project.ViewModels
 
             // 서비스 + Detector 조립
             var outputService = new ProcessingOutputService();
-            _detector = new Detector(
-                new ISubDetector[] { new BubbleDetector() },
-                outputService);
+            _detector = new Detector(new ISubDetector[]
+            { 
+                new BubbleDetector(),
+                new DustDetector(),
+            }, outputService);
 
             // DetectCmd: 비동기 실행, CanExecute = !IsBusy && 이미지 로드됨
             DetectCmd = new RelayCommand(

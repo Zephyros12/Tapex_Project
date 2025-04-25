@@ -42,7 +42,10 @@
 
     public sealed class DustParam
     {
-        // 추후 구현: 예) public double MaxDiameterMm { get; set; }
+        public double Threshold { get; set; } = 50.0;
+        public double MinArea { get; set; } = 5.0;
+        public double MaxArea { get; set; } = 200.0;
+        public int MorphKernel { get; set; } = 3;
     }
 
     public sealed class CrackParam
