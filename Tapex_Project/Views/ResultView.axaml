@@ -5,7 +5,11 @@
     x:Class="Tapex_Project.Views.ResultView"
     x:DataType="vm:ResultViewModel">
 
-    <ListBox ItemsSource="{Binding Results}" Margin="4">
+    <ListBox
+      ItemsSource="{Binding Results}"
+      SelectedItem="{Binding SelectedResult, Mode=TwoWay}"
+      Margin="4"
+      ScrollViewer.VerticalScrollBarVisibility="Auto">
         <ListBox.ItemTemplate>
             <DataTemplate>
                 <TextBlock Text="{Binding Type}" />

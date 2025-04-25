@@ -9,25 +9,56 @@
     Width="1024" Height="768">
 
     <Grid ColumnDefinitions="2*,1*">
-        <!-- ÁÂÃø: ÀÌ¹ÌÁö + Load ¹öÆ° -->
-        <views:ImageView Grid.Column="0" DataContext="{Binding ImageVM}" />
+        <!-- ì¢Œì¸¡: Load ë²„íŠ¼ + ì´ë¯¸ì§€/ROI -->
+        <Grid Grid.Column="0" RowDefinitions="Auto,*">
+            <!-- 1) Load ë²„íŠ¼ -->
+            <Button
+              Grid.Row="0"
+              Content="Load"
+              Command="{Binding ImageVM.LoadCmd}"
+              Margin="4" />
 
-        <!-- ¿ìÃø: Detect ¹öÆ°, °á°ú, ÆÄ¶ó¹ÌÅÍ -->
-        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
-            <!-- Detect -->
-            <Button Grid.Row="0"
-                    Content="Detect"
-                    Command="{Binding DetectCmd}"
-                    Margin="4" />
+            <!-- 2) ì´ë¯¸ì§€ -->
+            <Grid Grid.Row="1">
+                <!-- ì´ë¯¸ì§€ -->
+                <Image
+                  Source="{Binding ImageVM.Current.DisplayBitmap}"
+                  Stretch="Uniform"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch" />
+            </Grid>
+        </Grid>
 
-            <!-- Results -->
-            <views:ResultView Grid.Row="1"
-                              DataContext="{Binding ResultVM}"
-                              Margin="4" />
+        <!-- ìš°ì¸¡: Detect ë²„íŠ¼, ê²°ê³¼, íŒŒë¼ë¯¸í„° -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <Button
+              Grid.Row="0"
+              Content="Detect"
+              Command="{Binding DetectCmd}"
+              Margin="4" />
 
-            <!-- Parameters -->
-            <views:ParameterView Grid.Row="2"
-                                DataContext="{Binding ParameterVM}" />
+            <views:ResultView
+              Grid.Row="1"
+              DataContext="{Binding ResultVM}"
+              Margin="4" />
+
+            <views:DetailView
+              Grid.Row="2"
+              DataContext="{Binding ResultVM}"
+              Margin="4" />
+
+            <views:ParameterView
+              Grid.Row="3"
+              DataContext="{Binding ParameterVM}"
+              Margin="4" />
+            
         </Grid>
     </Grid>
 </Window>

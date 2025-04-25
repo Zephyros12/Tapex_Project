@@ -6,40 +6,81 @@
     x:Class="Tapex_Project.Views.ParameterView"
     x:DataType="vm:ParameterViewModel">
 
-    <StackPanel Margin="8" Spacing="8">
-        <TextBlock Text="Detection Parameters" FontWeight="Bold" FontSize="16"/>
+    <StackPanel Margin="8" Spacing="12">
+        <TextBlock
+          Text="Detection Parameters"
+          FontWeight="Bold"
+          FontSize="16" />
 
-        <!-- 픽셀 크기 (고정) -->
-        <StackPanel Orientation="Horizontal" Spacing="4">
-            <TextBlock Text="Pixel Size (μm):" Width="120"/>
-            <TextBlock Text="{Binding Config.PixelSizeMicrometer}"/>
-        </StackPanel>
+        <!-- Grid 로 레이블과 입력부를 정렬하되, ColumnSpacing/RowSpacing 대신 Margin 사용 -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="80" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <!-- 최소 불량 크기 (mm) -->
-        <StackPanel Orientation="Horizontal" Spacing="4">
-            <TextBlock Text="Min Defect Size (mm):" Width="120"/>
+            <!-- 1행: Pixel Size -->
+            <TextBlock
+              Grid.Row="0" Grid.Column="0"
+              Text="Pixel Size (μm):"
+              VerticalAlignment="Center"
+              Margin="0,0,8,8"/>
+            <TextBlock
+              Grid.Row="0" Grid.Column="1"
+              Text="{Binding Config.PixelSizeMicrometer}"
+              VerticalAlignment="Center"
+              Margin="0,0,0,8"/>
+
+            <!-- 2행: Min Defect Size (mm) -->
+            <TextBlock
+              Grid.Row="1" Grid.Column="0"
+              Text="Min Defect Size (mm):"
+              VerticalAlignment="Center"
+              Margin="0,0,8,8"/>
             <controls:NumericUpDown
-                Minimum="0.01" Maximum="1000" Increment="0.01"
-                Value="{Binding Config.MinDefectSizeMm, Mode=TwoWay}"
-                Width="80"/>
-        </StackPanel>
+              Grid.Row="1" Grid.Column="1"
+              Minimum="0.01"
+              Maximum="1000"
+              Increment="0.01"
+              Value="{Binding Config.MinDefectSizeMm, Mode=TwoWay}"
+              HorizontalAlignment="Left"
+              Margin="0,0,0,8"/>
 
-        <!-- 밝기 임계값 -->
-        <StackPanel Orientation="Horizontal" Spacing="4">
-            <TextBlock Text="Brightness Thr:" Width="120"/>
+            <!-- 3행: Brightness Threshold -->
+            <TextBlock
+              Grid.Row="2" Grid.Column="0"
+              Text="Brightness Thr:"
+              VerticalAlignment="Center"
+              Margin="0,0,8,8"/>
             <controls:NumericUpDown
-                Minimum="0" Maximum="255" Increment="0.1"
-                Value="{Binding Config.BrightnessThreshold, Mode=TwoWay}"
-                Width="80"/>
-        </StackPanel>
+              Grid.Row="2" Grid.Column="1"
+              Minimum="0"
+              Maximum="255"
+              Increment="0.1"
+              Value="{Binding Config.BrightnessThreshold, Mode=TwoWay}"
+              HorizontalAlignment="Left"
+              Margin="0,0,0,8"/>
 
-        <!-- 선명도 임계값 -->
-        <StackPanel Orientation="Horizontal" Spacing="4">
-            <TextBlock Text="Sharpness Thr:" Width="120"/>
+            <!-- 4행: Sharpness Threshold -->
+            <TextBlock
+              Grid.Row="3" Grid.Column="0"
+              Text="Sharpness Thr:"
+              VerticalAlignment="Center"
+              Margin="0,0,8,0"/>
             <controls:NumericUpDown
-                Minimum="0" Maximum="1000" Increment="1"
-                Value="{Binding Config.SharpnessThreshold, Mode=TwoWay}"
-                Width="80"/>
-        </StackPanel>
+              Grid.Row="3" Grid.Column="1"
+              Minimum="0"
+              Maximum="1000"
+              Increment="1"
+              Value="{Binding Config.SharpnessThreshold, Mode=TwoWay}"
+              HorizontalAlignment="Left"
+              Margin="0,0,0,0"/>
+        </Grid>
     </StackPanel>
 </UserControl>
