@@ -18,26 +18,39 @@
               Command="{Binding ImageVM.LoadCmd}"
               Margin="4" />
 
-            <!-- 2) 이미지 -->
-            <Grid Grid.Row="1">
-                <!-- 이미지 -->
-                <Image
-                  Source="{Binding ImageVM.Current.DisplayBitmap}"
-                  Stretch="Uniform"
-                  HorizontalAlignment="Stretch"
-                  VerticalAlignment="Stretch" />
-            </Grid>
+            <Viewbox
+                Grid.Row="1"
+                Stretch="Uniform"
+                Margin="4">
+                <Canvas
+                    Width="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Width}"
+                    Height="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Height}">
+                    <Image
+                        Source="{Binding ImageVM.Current.DisplayBitmap}"
+                        Canvas.Left="0" Canvas.Top="0"
+                        Width="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Width}"
+                        Height="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Height}" />
+                    <Rectangle
+                        IsVisible="{Binding IsDefectSelected}"
+                        Canvas.Left="{Binding DefectX}"
+                        Canvas.Top="{Binding DefectY}"
+                        Width="{Binding DefectWidth}"
+                        Height="{Binding DefectHeight}"
+                        Stroke="Red"
+                        StrokeThickness="2" />
+                </Canvas>
+            </Viewbox>
         </Grid>
 
         <!-- 우측: Detect 버튼, 결과, 파라미터 -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="2*"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            
+
             <Button
               Grid.Row="0"
               Content="Detect"
@@ -58,7 +71,7 @@
               Grid.Row="3"
               DataContext="{Binding ParameterVM}"
               Margin="4" />
-            
+
         </Grid>
     </Grid>
 </Window>
