@@ -2,11 +2,44 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
+    xmlns:controls="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
     x:Class="Tapex_Project.Views.ParameterView"
     x:DataType="vm:ParameterViewModel">
 
-    <StackPanel Margin="8" Spacing="4">
-        <TextBlock Text="Parameters" FontWeight="Bold" />
-        <!-- 추후 DetectionConfig 바인딩 컨트롤 추가 -->
+    <StackPanel Margin="8" Spacing="8">
+        <TextBlock Text="Detection Parameters" FontWeight="Bold" FontSize="16"/>
+
+        <!-- 픽셀 크기 (고정) -->
+        <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Text="Pixel Size (μm):" Width="120"/>
+            <TextBlock Text="{Binding Config.PixelSizeMicrometer}"/>
+        </StackPanel>
+
+        <!-- 최소 불량 크기 (mm) -->
+        <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Text="Min Defect Size (mm):" Width="120"/>
+            <controls:NumericUpDown
+                Minimum="0.01" Maximum="1000" Increment="0.01"
+                Value="{Binding Config.MinDefectSizeMm, Mode=TwoWay}"
+                Width="80"/>
+        </StackPanel>
+
+        <!-- 밝기 임계값 -->
+        <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Text="Brightness Thr:" Width="120"/>
+            <controls:NumericUpDown
+                Minimum="0" Maximum="255" Increment="0.1"
+                Value="{Binding Config.BrightnessThreshold, Mode=TwoWay}"
+                Width="80"/>
+        </StackPanel>
+
+        <!-- 선명도 임계값 -->
+        <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Text="Sharpness Thr:" Width="120"/>
+            <controls:NumericUpDown
+                Minimum="0" Maximum="1000" Increment="1"
+                Value="{Binding Config.SharpnessThreshold, Mode=TwoWay}"
+                Width="80"/>
+        </StackPanel>
     </StackPanel>
 </UserControl>

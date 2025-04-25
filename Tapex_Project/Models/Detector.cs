@@ -1,121 +1,106 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Drawing;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Tapex_Project.Models.Detection;
+using Tapex_Project.Services;
 
 namespace Tapex_Project.Models
 {
     /// <summary>
-    /// 전체 검사 흐름을 수행하는 Orchestrator
-    /// - 전역 평탄화
-    /// - 반원 자동 검출 및 ROI 마스킹
-    /// - 타일 기반 병렬 서브-검출
+    /// 전체 검사 흐름을 수행하는 Orchestrator (병렬 타일 기반)
     /// </summary>
     public sealed class Detector
     {
         private const int TileSize = 2048;
         private const int Overlap = 128;
 
-        private readonly ISubDetector[] _subDetectors =
+        private readonly ISubDetector[] _subDetectors;
+        private readonly IProcessingOutputService _outputService;
+
+        public Detector(ISubDetector[] subDetectors,
+                        IProcessingOutputService outputService)
         {
-            new BubbleDetector(),
-            //new ScratchDetector(),
-            //new DustDetector(),
-            //new CrackDetector()
-        };
+            _subDetectors = subDetectors;
+            _outputService = outputService;
+        }
 
         /// <summary>
-        /// Bitmap → Mat 변환 후, 단계별 이미지 저장(디버깅) 및 병렬 서브-검출 실행
+        /// 컬러 Mat을 받아서 그레이 변환 → 타일 분할 → 서브-검출기 실행 → 결과 필터링
         /// </summary>
-        public IReadOnlyList<DefectResult> Run(Bitmap bmp, DetectionConfig cfg)
+        public IReadOnlyList<DefectResult> Run(Mat srcColor, DetectionConfig cfg)
         {
-            // 디버깅용: 폴더 생성
-            var baseDir = Path.Combine(AppContext.BaseDirectory, "ProcessingOutputs");
-            Directory.CreateDirectory(baseDir);
-            var runDir = Path.Combine(baseDir, DateTime.Now.ToString("yyyyMMdd_HHmmss"));
-            Directory.CreateDirectory(runDir);
+            // 출력 디렉터리 초기화
+            _outputService.Initialize();
 
-            // 파일 저장 헬퍼
-            void SaveMat(string name, Mat m) => CvInvoke.Imwrite(Path.Combine(runDir, name), m);
-
-            // 1) Bitmap → BGR Mat
-            using var srcColor = BitmapToMat(bmp);
-
-            // 2) BGR → Gray
+            // 1) Gray 변환
             using var gray = new Mat();
             CvInvoke.CvtColor(srcColor, gray, ColorConversion.Bgr2Gray);
 
-            // 3) 글로벌 평탄화
-            int globalPx = (int)Math.Round(UnitHelper.MmToPx(cfg.Circle.FlattenRadiusMm));
-            using var flat = Preprocess.FlattenBackground(gray, globalPx);
-            SaveMat("00_flatGlobal.png", flat);
+            // 2) (디버깅용) 전체 Gray 저장
+            _outputService.SaveMat("00_gray.png", gray);
 
-            // 4) 반원 검출 및 ROI 마스킹
-            var circle = SemiCircleLocator.DetectClippedCircle(flat)
-                         ?? throw new InvalidOperationException("반원 검출 실패: Circle 파라미터 조정 필요");
-            using var mask = RoiMask.CreateSemicircleMask(srcColor.Width, srcColor.Height, circle);
-            SaveMat("01_mask.png", mask);
+            // 3) 타일 분할
+            var rects = CreateTiles(gray.Width, gray.Height);
 
-            using var roi = new Mat();
-            CvInvoke.BitwiseAnd(flat, flat, roi, mask);
+            // 4) 병렬 타일 검사
+            var bag = new ConcurrentBag<DefectResult>();
+            var options = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Math.Max(Environment.ProcessorCount - 1, 1)
+            };
 
-            // 5) 타일 기반 병렬 서브-검출
-            int width = roi.Width;
-            int height = roi.Height;
+            Parallel.ForEach(
+                Partitioner.Create(rects, EnumerablePartitionerOptions.NoBuffering),
+                options,
+                rect =>
+                {
+                    using var tile = new Mat(gray, rect);
 
-            var rects = new List<Rectangle>();
+                    foreach (var sub in _subDetectors)
+                    {
+                        foreach (var r in sub.Run(tile, cfg))
+                        {
+                            bag.Add(new DefectResult
+                            {
+                                X = r.X + rect.X,
+                                Y = r.Y + rect.Y,
+                                Width = r.Width,
+                                Height = r.Height,
+                                Score = r.Score,
+                                Type = r.Type,
+                                DistanceFromEdge = r.DistanceFromEdge
+                            });
+                        }
+                    }
+                });
+
+            // 5) mm→픽셀 환산 후 필터링
+            var allResults = bag.ToArray();
+            int minPx = (int)Math.Ceiling(
+                cfg.MinDefectSizeMm * 1000.0   // mm → μm
+                / cfg.PixelSizeMicrometer      // μm 당 픽셀 수
+            );
+
+            var filtered = allResults
+                .Where(r => Math.Max(r.Width, r.Height) >= minPx)
+                .ToArray();
+
+            return filtered;
+        }
+
+        private static IEnumerable<System.Drawing.Rectangle> CreateTiles(int width, int height)
+        {
             for (int y = 0; y < height; y += TileSize - Overlap)
                 for (int x = 0; x < width; x += TileSize - Overlap)
                 {
                     int w = Math.Min(TileSize, width - x);
                     int h = Math.Min(TileSize, height - y);
-                    rects.Add(new Rectangle(x, y, w, h));
+                    yield return new System.Drawing.Rectangle(x, y, w, h);
                 }
-
-            var resultsBag = new ConcurrentBag<DefectResult>();
-            Parallel.ForEach(rects, rect =>
-            {
-                using var tileMat = new Mat(roi, rect);
-                
-                foreach (var det in _subDetectors)
-                {
-                    var list = det.Run(tileMat, cfg);
-                    foreach (var r in list)
-                    {
-                        resultsBag.Add(new DefectResult
-                        {
-                            X = r.X + rect.X,
-                            Y = r.Y + rect.Y,
-                            Width = r.Width,
-                            Height = r.Height,
-                            DistanceFromEdge = r.DistanceFromEdge,
-                            Score = r.Score,
-                            Type = r.Type
-                        });
-                    }
-                }
-            });
-
-            return resultsBag.ToArray();
-        }
-
-        /// <summary>
-        /// Bitmap → Emgu CV Mat 변환 헬퍼
-        /// </summary>
-        private static Mat BitmapToMat(Bitmap bmp)
-        {
-            using var ms = new MemoryStream();
-            bmp.Save(ms);
-            var data = ms.ToArray();
-            var mat = new Mat();
-            CvInvoke.Imdecode(data, ImreadModes.Color, mat);
-            return mat;
         }
     }
 }

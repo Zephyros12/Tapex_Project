@@ -7,6 +7,10 @@
         public ScratchParam Scratch { get; } = new();
         public DustParam Dust { get; } = new();
         public CrackParam Crack { get; } = new();
+        public double PixelSizeMicrometer { get; } = 21.0;
+        public double MinDefectSizeMm { get; set; } = 0.1;
+        public double BrightnessThreshold { get; set; } = 128.0;
+        public double SharpnessThreshold { get; set; } = 100.0;
     }
 
     public sealed class CircleDetectionParam
@@ -22,9 +26,13 @@
 
     public sealed class BubbleParam
     {
-        public double MinDiameterMm { get; set; } = 0.20;
-        public double MaxDiameterMm { get; set; } = 3.00;
-        public double MinCircularity { get; set; } = 0.70;
+        public int MorphKernelSize { get; set; } = 3;
+        public double Threshold { get; set; } = 100.0;
+        public double MaxValue { get; set; } = 255.0;
+        public double MinArea { get; set; } = 50.0;
+        public int MinWidth { get; set; } = 5;
+        public int MinHeight { get; set; } = 5;
+        public double MinCircularity { get; set; } = 0.7;
     }
 
     public sealed class ScratchParam
