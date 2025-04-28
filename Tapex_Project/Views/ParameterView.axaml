@@ -228,10 +228,54 @@
             <!-- 5) Crack -->
             <TabItem Header="Crack">
                 <ScrollViewer Padding="8">
-                    <TextBlock
-                      Text="No preprocess parameters defined."
-                      FontStyle="Italic"
-                      Foreground="Gray"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Canny Thr1:" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="0" Grid.Column="1"
+                          Minimum="0" Maximum="500" Increment="1"
+                          Value="{Binding CrackParams.CannyThreshold1, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Canny Thr2:" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="1" Grid.Column="1"
+                          Minimum="0" Maximum="500" Increment="1"
+                          Value="{Binding CrackParams.CannyThreshold2, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Hough Thresh:" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="2" Grid.Column="1"
+                          Minimum="1" Maximum="200" Increment="1"
+                          Value="{Binding CrackParams.HoughThreshold, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Min Len (mm):" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="3" Grid.Column="1"
+                          Minimum="0.1" Maximum="100" Increment="0.1"
+                          Value="{Binding CrackParams.MinLineLengthMm, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Max Gap (mm):" Margin="0,0,8,0"/>
+                        <controls:NumericUpDown
+                          Grid.Row="4" Grid.Column="1"
+                          Minimum="0" Maximum="50" Increment="0.1"
+                          Value="{Binding CrackParams.MaxLineGapMm, Mode=TwoWay}"
+                          Width="80"/>
+                    </Grid>
                 </ScrollViewer>
             </TabItem>
         </TabControl>

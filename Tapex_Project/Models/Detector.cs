@@ -2,20 +2,19 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Drawing;
 using System.Threading.Tasks;
+using AvaloniaBitmap = Avalonia.Media.Imaging.Bitmap;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Util;
 using Tapex_Project.Models.Detection;
 using Tapex_Project.Services;
-using Avalonia.Media.Imaging;
 using Emgu.CV.Structure;
 
 namespace Tapex_Project.Models
 {
-    /// <summary>
-    /// 전체 검사 흐름을 수행하는 Orchestrator (병렬 타일 기반)
-    /// </summary>
     public sealed class Detector
     {
         private const int TileSize = 2048;
@@ -31,17 +30,8 @@ namespace Tapex_Project.Models
             _outputService = outputService;
         }
 
-        /// <summary>
-        /// 컬러 Mat을 받아서
-        ///  1) 그레이 변환
-        ///  2) 타일 분할
-        ///  3) 서브-검출기 실행
-        ///  4) 상세 정보(밝기/선명도/크기/프리뷰) 추가
-        ///  5) 반환
-        /// </summary>
         public IReadOnlyList<DefectResult> Run(Mat srcColor, DetectionConfig cfg)
         {
-            // 0) 출력 디렉터리 초기화
             _outputService.Initialize();
 
             // 1) 그레이 변환
@@ -49,71 +39,102 @@ namespace Tapex_Project.Models
             CvInvoke.CvtColor(srcColor, gray, ColorConversion.Bgr2Gray);
             _outputService.SaveMat("00_gray.png", gray);
 
-            // 2) 타일 분할
-            var rects = CreateTiles(gray.Width, gray.Height);
+            // 2) 타일 리스트 미리 생성
+            var allRects = CreateTiles(gray.Width, gray.Height).ToList();
 
-            // 3) 병렬로 서브-검출기 실행
+            // 3) 병렬 검출
             var bag = new ConcurrentBag<DefectResult>();
-            var options = new ParallelOptions
-            {
-                MaxDegreeOfParallelism = Math.Max(Environment.ProcessorCount - 1, 1)
-            };
+            var options = new ParallelOptions { MaxDegreeOfParallelism = Math.Max(Environment.ProcessorCount - 1, 1) };
 
             Parallel.ForEach(
-                Partitioner.Create(rects, EnumerablePartitionerOptions.NoBuffering),
+                Partitioner.Create(allRects, EnumerablePartitionerOptions.NoBuffering),
                 options,
                 rect =>
                 {
-                    using var tile = new Mat(gray, rect);
-                    foreach (var sub in _subDetectors)
+                    try
                     {
-                        foreach (var r in sub.Run(tile, cfg))
+                        var safeTileRect = Rectangle.Intersect(new Rectangle(0, 0, gray.Width, gray.Height), rect);
+                        if (safeTileRect.Width <= 0 || safeTileRect.Height <= 0)
+                            return;
+
+                        using var tile = new Mat(gray, safeTileRect);
+
+                        foreach (var sub in _subDetectors)
                         {
-                            bag.Add(new DefectResult
+                            try
                             {
-                                X = r.X + rect.X,
-                                Y = r.Y + rect.Y,
-                                Width = r.Width,
-                                Height = r.Height,
-                                DistanceFromEdge = r.DistanceFromEdge,
-                                Score = r.Score,
-                                Type = r.Type
-                            });
+                                foreach (var r in sub.Run(tile, cfg))
+                                {
+                                    bag.Add(new DefectResult
+                                    {
+                                        X = r.X + safeTileRect.X,
+                                        Y = r.Y + safeTileRect.Y,
+                                        Width = r.Width,
+                                        Height = r.Height,
+                                        DistanceFromEdge = r.DistanceFromEdge,
+                                        Score = r.Score,
+                                        Type = r.Type
+                                    });
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                // 필요에 따라 로그 남기기
+                                Console.WriteLine($"[Error] {sub.GetType().Name} on {safeTileRect}: {ex.Message}");
+                            }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[Error] creating tile {rect}: {ex.Message}");
                     }
                 });
 
-            // 4) 기본 결과 수집
+            // 4) 상세 정보 추가
             var rawResults = bag.ToArray();
             var detailed = new List<DefectResult>(rawResults.Length);
 
-            // 5) 각 결과에 밝기/선명도/크기(mm)/프리뷰 추가
             foreach (var r in rawResults)
             {
-                var rect = new System.Drawing.Rectangle(
-                    x: (int)Math.Round(r.X), 
-                    y: (int)Math.Round(r.Y), 
-                    width: (int)Math.Round(r.Width), 
+                // 원본 좌표 사각형
+                var rawRect = new Rectangle(
+                    x: (int)Math.Round(r.X),
+                    y: (int)Math.Round(r.Y),
+                    width: (int)Math.Round(r.Width),
                     height: (int)Math.Round(r.Height));
 
-                // 밝기: ROI 그레이 평균
-                using var roiGray = new Mat(gray, rect);
-                var meanBri = CvInvoke.Mean(roiGray).V0;
+                // 전체 이미지 범위와 교차
+                var grayBounds = new Rectangle(0, 0, gray.Width, gray.Height);
+                var colorBounds = new Rectangle(0, 0, srcColor.Width, srcColor.Height);
+                var safeGrayRect = Rectangle.Intersect(grayBounds, rawRect);
+                var safeColorRect = Rectangle.Intersect(colorBounds, rawRect);
 
-                // 선명도: Laplacian 분산
+                if (safeGrayRect.Width <= 0 || safeGrayRect.Height <= 0 ||
+                    safeColorRect.Width <= 0 || safeColorRect.Height <= 0)
+                {
+                    // 유효하지 않은 ROI는 건너뛰기
+                    continue;
+                }
+
+                // 밝기
+                using var roiGray = new Mat(gray, safeGrayRect);
+                double meanBri = CvInvoke.Mean(roiGray).V0;
+
+                // 선명도
                 using var lap = new Mat();
                 CvInvoke.Laplacian(roiGray, lap, DepthType.Cv64F);
                 var meanLap = new MCvScalar();
                 var stddevLap = new MCvScalar();
                 CvInvoke.MeanStdDev(lap, ref meanLap, ref stddevLap);
-                var varLap = stddevLap.V0 * stddevLap.V0;
-                // 크기(mm)
+                double varLap = stddevLap.V0 * stddevLap.V0;
+
+                // 크기 (mm)
                 double sizeMm = Math.Max(r.Width, r.Height)
                                 * cfg.PixelSizeMicrometer
                                 / 1000.0;
 
-                // 프리뷰 이미지: 컬러 ROI → PNG 스트림 → Avalonia.Bitmap
-                using var roiColor = new Mat(srcColor, rect);
+                // 프리뷰
+                using var roiColor = new Mat(srcColor, safeColorRect);
                 var preview = ConvertMatToBitmap(roiColor);
 
                 detailed.Add(new DefectResult
@@ -135,29 +156,23 @@ namespace Tapex_Project.Models
             return detailed;
         }
 
-        /// <summary>
-        /// Mat을 PNG로 인코딩해 Avalonia.Bitmap으로 반환
-        /// </summary>
-        private static Bitmap ConvertMatToBitmap(Mat mat)
+        private static AvaloniaBitmap ConvertMatToBitmap(Mat mat)
         {
-            var vb = new VectorOfByte();
+            using var vb = new VectorOfByte();
             CvInvoke.Imencode(".png", mat, vb);
             using var ms = new MemoryStream(vb.ToArray());
             ms.Seek(0, SeekOrigin.Begin);
-            return new Bitmap(ms);
+            return new AvaloniaBitmap(ms);
         }
 
-        /// <summary>
-        /// 이미지 크기에 맞춰 타일 영역 생성 (겹침 포함)
-        /// </summary>
-        private static IEnumerable<System.Drawing.Rectangle> CreateTiles(int width, int height)
+        private static IEnumerable<Rectangle> CreateTiles(int width, int height)
         {
             for (int y = 0; y < height; y += TileSize - Overlap)
                 for (int x = 0; x < width; x += TileSize - Overlap)
                 {
                     int w = Math.Min(TileSize, width - x);
                     int h = Math.Min(TileSize, height - y);
-                    yield return new System.Drawing.Rectangle(x, y, w, h);
+                    yield return new Rectangle(x, y, w, h);
                 }
         }
     }

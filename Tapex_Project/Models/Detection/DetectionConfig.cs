@@ -43,6 +43,11 @@
 
     public sealed class CrackParam
     {
-        // 추후 구현: 예) public double MinLengthMm { get; set; }
+        public double CannyThreshold1 { get; set; } = 100.0;
+        public double CannyThreshold2 { get; set; } = 200.0;
+        public int HoughThreshold { get; set; } = 50;
+        public double MinLineLengthMm { get; set; } = 5.0;
+        public double MaxLineGapMm { get; set; } = 2.0;
+        public int LineWidthPx { get; set; } = 3;
     }
 }
