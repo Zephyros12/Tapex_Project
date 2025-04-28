@@ -90,8 +90,8 @@ namespace Tapex_Project.Views.Controls
                 var pad = DustPadding * Scale;
                 x -= pad;
                 y -= pad;
-                w += pad * 100;
-                h += pad * 100;
+                w += pad * 50;
+                h += pad * 50;
             }
 
             var rect = new Rectangle

@@ -1,5 +1,4 @@
-﻿// Models/Detection/BubbleDetector.cs
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
