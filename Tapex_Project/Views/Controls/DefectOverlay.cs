@@ -73,7 +73,7 @@ namespace Tapex_Project.Views.Controls
             {
                 DefectType.Bubble => Brushes.Red,
                 DefectType.Dust => Brushes.Blue,
-                DefectType.Scratch => Brushes.Green,
+                DefectType.Scratch => Brushes.Yellow,
                 DefectType.Crack => Brushes.Orange,
                 _ => Brushes.Gray
             };

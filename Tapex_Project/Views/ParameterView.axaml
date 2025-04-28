@@ -174,10 +174,54 @@
             <!-- 4) Scratch -->
             <TabItem Header="Scratch">
                 <ScrollViewer Padding="8">
-                    <TextBlock
-                      Text="No preprocess parameters defined."
-                      FontStyle="Italic"
-                      Foreground="Gray"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Canny Thr1:" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="0" Grid.Column="1"
+                          Minimum="0" Maximum="500" Increment="1"
+                          Value="{Binding ScratchParams.CannyThreshold1, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Canny Thr2:" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="1" Grid.Column="1"
+                          Minimum="0" Maximum="500" Increment="1"
+                          Value="{Binding ScratchParams.CannyThreshold2, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Dilate Kernel:" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="2" Grid.Column="1"
+                          Minimum="1" Maximum="31" Increment="2"
+                          Value="{Binding ScratchParams.DilateKernel, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Min Length (mm):" Margin="0,0,8,8"/>
+                        <controls:NumericUpDown
+                          Grid.Row="3" Grid.Column="1"
+                          Minimum="0.1" Maximum="100" Increment="0.1"
+                          Value="{Binding ScratchParams.MinLengthMm, Mode=TwoWay}"
+                          Width="80" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Max Width (px):" Margin="0,0,8,0"/>
+                        <controls:NumericUpDown
+                          Grid.Row="4" Grid.Column="1"
+                          Minimum="1" Maximum="100" Increment="1"
+                          Value="{Binding ScratchParams.MaxWidthPx, Mode=TwoWay}"
+                          Width="80"/>
+                    </Grid>
                 </ScrollViewer>
             </TabItem>
 

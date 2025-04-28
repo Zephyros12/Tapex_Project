@@ -23,6 +23,8 @@ namespace Tapex_Project.ViewModels
             Results.Clear();
             foreach (var item in items)
                 Results.Add(item);
+
+            SelectedResult = null;
         }
     }
 }

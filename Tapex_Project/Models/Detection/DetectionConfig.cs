@@ -26,7 +26,11 @@
 
     public sealed class ScratchParam
     {
-        // 추후 구현: 예) public double MinLengthMm { get; set; }
+        public double CannyThreshold1 { get; set; } = 50.0;
+        public double CannyThreshold2 { get; set; } = 150.0;
+        public int DilateKernel {  get; set; } = 3;
+        public double MinLengthMm { get; set; } = 1.0;
+        public int MaxWidthPx { get; set; } = 5;
     }
 
     public sealed class DustParam

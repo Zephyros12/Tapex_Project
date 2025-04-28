@@ -44,6 +44,7 @@ namespace Tapex_Project.ViewModels
             { 
                 new BubbleDetector(),
                 new DustDetector(),
+                new ScratchDetector(),
             }, outputService);
 
             // DetectCmd: 비동기 실행, CanExecute = !IsBusy && 이미지 로드됨
