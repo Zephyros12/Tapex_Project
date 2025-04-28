@@ -4,23 +4,33 @@
     xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
     xmlns:controls="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
     x:Class="Tapex_Project.Views.ParameterView"
-    x:DataType="vm:ParameterViewModel">
+    x:DataType="vm:ParameterViewModel"
+    Grid.IsSharedSizeScope="True">
+
+    <!-- ⬥ 공통 스타일 ⬥ -->
+    <UserControl.Styles>
+        <!-- NumericUpDown 공통 폭/정렬 -->
+        <Style Selector="NumericUpDown">
+            <Setter Property="Width"                   Value="120"/>
+            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            <Setter Property="ButtonSpinnerLocation"   Value="Right"/>
+        </Style>
+    </UserControl.Styles>
 
     <StackPanel Margin="8" Spacing="12">
-        <TextBlock
-          Text="Parameters"
-          FontWeight="Bold"
-          FontSize="16" />
+        <TextBlock Text="Parameters" FontWeight="Bold" FontSize="16"/>
 
         <TabControl>
-            <!-- 1) General (전역 필터) -->
+            <!-- ========== 1) General ========== -->
             <TabItem Header="General">
-                <ScrollViewer Padding="8">
+                <ScrollViewer Padding="8" Height="280">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"
+                                              SharedSizeGroup="ParamLabels"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="80"/>
                         </Grid.ColumnDefinitions>
+
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -28,41 +38,52 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Pixel Size (μm):" Margin="0,0,8,8" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Config.PixelSizeMicrometer}" Margin="0,0,0,8" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   Text="Pixel Size (μm):" Margin="0,0,8,8"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding Config.PixelSizeMicrometer}"
+                                   Margin="0,0,0,8" VerticalAlignment="Center"/>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Defect Size (mm):" Margin="0,0,8,8" VerticalAlignment="Center"/>
-                        <controls:NumericUpDown
-                          Grid.Row="1" Grid.Column="1"
-                          Minimum="0.01" Maximum="1000" Increment="0.01"
-                          Value="{Binding Config.MinDefectSizeMm, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                   Text="Min Defect Size (mm²):" Margin="0,0,8,8"
+                                   VerticalAlignment="Center"/>
+                        <controls:NumericUpDown Grid.Row="1" Grid.Column="1"
+                                                Minimum="0.01" Maximum="1000"
+                                                Increment="0.01"
+                                                Value="{Binding Config.MinDefectSizeMm, Mode=TwoWay}"
+                                                Margin="0,0,0,8"/>
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Brightness Thr:" Margin="0,0,8,8" VerticalAlignment="Center"/>
-                        <controls:NumericUpDown
-                          Grid.Row="2" Grid.Column="1"
-                          Minimum="0" Maximum="255" Increment="0.1"
-                          Value="{Binding Config.BrightnessThreshold, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0"
+                                   Text="Brightness Thr:" Margin="0,0,8,8"
+                                   VerticalAlignment="Center"/>
+                        <controls:NumericUpDown Grid.Row="2" Grid.Column="1"
+                                                Minimum="0" Maximum="255"
+                                                Increment="0.1"
+                                                Value="{Binding Config.BrightnessThreshold, Mode=TwoWay}"
+                                                Margin="0,0,0,8"/>
 
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Sharpness Thr:" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                        <controls:NumericUpDown
-                          Grid.Row="3" Grid.Column="1"
-                          Minimum="0" Maximum="1000" Increment="1"
-                          Value="{Binding Config.SharpnessThreshold, Mode=TwoWay}"
-                          Width="80"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0"
+                                   Text="Sharpness Thr:" Margin="0,0,8,0"
+                                   VerticalAlignment="Center"/>
+                        <controls:NumericUpDown Grid.Row="3" Grid.Column="1"
+                                                Minimum="0" Maximum="1000"
+                                                Increment="1"
+                                                Value="{Binding Config.SharpnessThreshold, Mode=TwoWay}"/>
                     </Grid>
                 </ScrollViewer>
             </TabItem>
 
             <!-- 2) Bubble 전처리 파라미터 -->
             <TabItem Header="Bubble">
-                <ScrollViewer Padding="8">
+                <ScrollViewer Padding="8" Height="280">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"
+                                              SharedSizeGroup="ParamLabels"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="80"/>
                         </Grid.ColumnDefinitions>
+
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -78,61 +99,62 @@
                           Grid.Row="0" Grid.Column="1"
                           Minimum="1" Maximum="51" Increment="2"
                           Value="{Binding BubbleParams.MorphKernelSize, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Threshold:" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="1" Grid.Column="1"
                           Minimum="0" Maximum="255" Increment="1"
                           Value="{Binding BubbleParams.Threshold, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Value:" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="2" Grid.Column="1"
                           Minimum="0" Maximum="255" Increment="1"
                           Value="{Binding BubbleParams.MaxValue, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="Min Area (px):" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="3" Grid.Column="1"
                           Minimum="0" Maximum="10000" Increment="1"
                           Value="{Binding BubbleParams.MinArea, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="4" Grid.Column="0" Text="Min Width (px):" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="4" Grid.Column="1"
                           Minimum="1" Maximum="1000" Increment="1"
                           Value="{Binding BubbleParams.MinWidth, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="5" Grid.Column="0" Text="Min Height (px):" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="5" Grid.Column="1"
                           Minimum="1" Maximum="1000" Increment="1"
                           Value="{Binding BubbleParams.MinHeight, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="6" Grid.Column="0" Text="Min Circularity:" Margin="0,0,8,0"/>
                         <controls:NumericUpDown
                           Grid.Row="6" Grid.Column="1"
                           Minimum="0" Maximum="1" Increment="0.01"
-                          Value="{Binding BubbleParams.MinCircularity, Mode=TwoWay}"
-                          Width="80"/>
+                          Value="{Binding BubbleParams.MinCircularity, Mode=TwoWay}"/>
                     </Grid>
                 </ScrollViewer>
             </TabItem>
 
             <!-- 3) Dust 전처리 파라미터 -->
             <TabItem Header="Dust">
-                <ScrollViewer Padding="8">
+                <ScrollViewer Padding="8" Height="280">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"
+                                              SharedSizeGroup="ParamLabels"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="80"/>
                         </Grid.ColumnDefinitions>
+
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -145,40 +167,41 @@
                           Grid.Row="0" Grid.Column="1"
                           Minimum="0" Maximum="255" Increment="1"
                           Value="{Binding DustParams.Threshold, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Min Area (px):" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="1" Grid.Column="1"
                           Minimum="0" Maximum="10000" Increment="1"
                           Value="{Binding DustParams.MinArea, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Max Area (px):" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="2" Grid.Column="1"
                           Minimum="0" Maximum="10000" Increment="1"
                           Value="{Binding DustParams.MaxArea, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="Morph Kernel:" Margin="0,0,8,0"/>
                         <controls:NumericUpDown
                           Grid.Row="3" Grid.Column="1"
                           Minimum="1" Maximum="51" Increment="2"
-                          Value="{Binding DustParams.MorphKernel, Mode=TwoWay}"
-                          Width="80"/>
+                          Value="{Binding DustParams.MorphKernel, Mode=TwoWay}"/>
                     </Grid>
                 </ScrollViewer>
             </TabItem>
 
             <!-- 4) Scratch -->
             <TabItem Header="Scratch">
-                <ScrollViewer Padding="8">
+                <ScrollViewer Padding="8" Height="280">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"
+                                              SharedSizeGroup="ParamLabels"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="80"/>
                         </Grid.ColumnDefinitions>
+
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -192,47 +215,48 @@
                           Grid.Row="0" Grid.Column="1"
                           Minimum="0" Maximum="500" Increment="1"
                           Value="{Binding ScratchParams.CannyThreshold1, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Canny Thr2:" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="1" Grid.Column="1"
                           Minimum="0" Maximum="500" Increment="1"
                           Value="{Binding ScratchParams.CannyThreshold2, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Dilate Kernel:" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="2" Grid.Column="1"
                           Minimum="1" Maximum="31" Increment="2"
                           Value="{Binding ScratchParams.DilateKernel, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="Min Length (mm):" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="3" Grid.Column="1"
                           Minimum="0.1" Maximum="100" Increment="0.1"
                           Value="{Binding ScratchParams.MinLengthMm, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="4" Grid.Column="0" Text="Max Width (px):" Margin="0,0,8,0"/>
                         <controls:NumericUpDown
                           Grid.Row="4" Grid.Column="1"
                           Minimum="1" Maximum="100" Increment="1"
-                          Value="{Binding ScratchParams.MaxWidthPx, Mode=TwoWay}"
-                          Width="80"/>
+                          Value="{Binding ScratchParams.MaxWidthPx, Mode=TwoWay}"/>
                     </Grid>
                 </ScrollViewer>
             </TabItem>
 
             <!-- 5) Crack -->
             <TabItem Header="Crack">
-                <ScrollViewer Padding="8">
+                <ScrollViewer Padding="8" Height="280">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"
+                                              SharedSizeGroup="ParamLabels"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="80"/>
                         </Grid.ColumnDefinitions>
+
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -246,35 +270,34 @@
                           Grid.Row="0" Grid.Column="1"
                           Minimum="0" Maximum="500" Increment="1"
                           Value="{Binding CrackParams.CannyThreshold1, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Canny Thr2:" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="1" Grid.Column="1"
                           Minimum="0" Maximum="500" Increment="1"
                           Value="{Binding CrackParams.CannyThreshold2, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Hough Thresh:" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="2" Grid.Column="1"
                           Minimum="1" Maximum="200" Increment="1"
                           Value="{Binding CrackParams.HoughThreshold, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="Min Len (mm):" Margin="0,0,8,8"/>
                         <controls:NumericUpDown
                           Grid.Row="3" Grid.Column="1"
                           Minimum="0.1" Maximum="100" Increment="0.1"
                           Value="{Binding CrackParams.MinLineLengthMm, Mode=TwoWay}"
-                          Width="80" Margin="0,0,0,8"/>
+                          Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="4" Grid.Column="0" Text="Max Gap (mm):" Margin="0,0,8,0"/>
                         <controls:NumericUpDown
                           Grid.Row="4" Grid.Column="1"
                           Minimum="0" Maximum="50" Increment="0.1"
-                          Value="{Binding CrackParams.MaxLineGapMm, Mode=TwoWay}"
-                          Width="80"/>
+                          Value="{Binding CrackParams.MaxLineGapMm, Mode=TwoWay}"/>
                     </Grid>
                 </ScrollViewer>
             </TabItem>

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Emgu.CV;
+using Emgu.CV.CvEnum;
 using Tapex_Project.Models;
 using Tapex_Project.Models.Detection;
 using Tapex_Project.Services;
@@ -13,8 +14,14 @@ namespace Tapex_Project.ViewModels
         public ImageViewModel ImageVM { get; }
         public ResultViewModel ResultVM { get; }
         public ParameterViewModel ParameterVM { get; }
+        public IPreprocessingService Preprocessor { get; }
 
-        private readonly Detector _detector;
+        private Mat? _storedMask;
+        public Mat? StoredMask
+        {
+            get => _storedMask;
+            private set => SetProperty(ref _storedMask, value);
+        }
 
         private bool _isBusy;
         /// <summary>검사 중 표시용</summary>
@@ -28,8 +35,23 @@ namespace Tapex_Project.ViewModels
             }
         }
 
+        /// <summary>Mask 생성</summary>
+        public RelayCommand GenerateMaskCmd { get; }
+
+        /// <summary>Mask 초기화</summary>
+        public RelayCommand ClearMaskCmd { get; }
+
         /// <summary>검사 명령</summary>
         public RelayCommand DetectCmd { get; }
+
+        private readonly Detector _detector;
+
+        private string? _statusMessage;
+        public string? StatusMessage
+        {
+            get => _statusMessage;
+            private set => SetProperty(ref _statusMessage, value);
+        }
 
         public MainWindowViewModel(IFilePickerService picker)
         {
@@ -38,10 +60,18 @@ namespace Tapex_Project.ViewModels
             ResultVM = new ResultViewModel();
             ParameterVM = new ParameterViewModel();
 
+            Preprocessor = new PreprocessingService();
+            GenerateMaskCmd = new RelayCommand(_ => GenerateMask(), _ => ImageVM.Current?.FullMat != null);
+            ClearMaskCmd = new RelayCommand(_ =>
+            {
+                StoredMask = null;
+                StatusMessage = "Mask 초기화 완료";
+            });
+
             // 서비스 + Detector 조립
             var outputService = new ProcessingOutputService();
             _detector = new Detector(new ISubDetector[]
-            { 
+            {
                 new BubbleDetector(),
                 new DustDetector(),
                 new ScratchDetector(),
@@ -51,13 +81,16 @@ namespace Tapex_Project.ViewModels
             // DetectCmd: 비동기 실행, CanExecute = !IsBusy && 이미지 로드됨
             DetectCmd = new RelayCommand(
                 async _ => await DetectAsync(),
-                _ => !IsBusy && ImageVM.Current != null);
+                _ => !IsBusy && ImageVM.Current?.FullMat != null);
 
             // 이미지 로드 상태 변경 시 버튼 활성화 갱신
             ImageVM.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(ImageViewModel.Current))
+                {
                     DetectCmd.NotifyCanExecuteChanged();
+                    GenerateMaskCmd.NotifyCanExecuteChanged();
+                }
             };
 
             // 선택된 결과 변경 시 ROI 업데이트
@@ -72,6 +105,52 @@ namespace Tapex_Project.ViewModels
                     RaisePropertyChanged(nameof(DefectHeight));
                 }
             };
+        }
+
+        private void GenerateMask()
+        {
+            var mat = ImageVM.Current?.FullMat;
+            if (mat == null) return;
+
+            var gray = new Mat();
+            CvInvoke.CvtColor(mat, gray, ColorConversion.Bgr2Gray);
+
+            StoredMask = Preprocessor.ExtractLargestBlobMask(gray);
+
+            StatusMessage = "Mask 생성 완료";
+        }
+
+        /// <summary>
+        /// 실제 검사 실행 (백그라운드 스레드)
+        /// </summary>
+        private async Task DetectAsync()
+        {
+            var mat = ImageVM.Current?.FullMat;
+            if (mat == null) return;
+
+            IsBusy = true;
+            try
+            {
+                Mat roi;
+                if (StoredMask != null)
+                {
+                    roi = new Mat();
+                    CvInvoke.BitwiseAnd(mat, mat, roi, StoredMask);
+                }
+                else
+                {
+                    roi = mat;
+                    StatusMessage = "Mask 없이 전체 영상 검사";
+                }
+
+                var results = await Task.Run(() => _detector.Run(roi, ParameterVM.Config));
+
+                ResultVM.Update(results);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         /// <summary>ROI 표시 여부</summary>
@@ -98,28 +177,5 @@ namespace Tapex_Project.ViewModels
             => ImageVM.Current != null && ResultVM.SelectedResult != null
                 ? ResultVM.SelectedResult.Height * ImageVM.Current.ScaleFactor
                 : 0;
-
-        /// <summary>
-        /// 실제 검사 실행 (백그라운드 스레드)
-        /// </summary>
-        private async Task DetectAsync()
-        {
-            if (ImageVM.Current?.FullMat == null)
-                return;
-
-            IsBusy = true;
-            try
-            {
-                // Mat을 직접 넘겨서 검사
-                var results = await Task.Run(() =>
-                    _detector.Run(ImageVM.Current.FullMat, ParameterVM.Config));
-
-                ResultVM.Update(results);
-            }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
     }
 }
