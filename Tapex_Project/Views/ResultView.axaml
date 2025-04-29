@@ -12,7 +12,19 @@
             <ComboBox
               Width="120"
               ItemsSource="{Binding SortOptions}"
-              SelectedItem="{Binding SelectedSort}" />
+              SelectedItem="{Binding SelectedSort}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock>
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0}">
+                                    <Binding/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
         </StackPanel>
 
         <!-- 2) 타입별 검출 개수 요약 -->

@@ -14,10 +14,13 @@ namespace Tapex_Project.Models
 
     public sealed class DefectResult
     {
-        public double X { get; init; }
-        public double Y { get; init; }
-        public double Width { get; init; }
-        public double Height { get; init; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double PixelSizeMicrometer { get; set; }
+        public double WidthMm => Width * (PixelSizeMicrometer / 1000.0);
+        public double HeightMm => Height * (PixelSizeMicrometer / 1000.0);
         public double DistanceFromEdge { get; set; }
         public double Score { get; set; }
         public DefectType Type { get; set; }
@@ -26,6 +29,5 @@ namespace Tapex_Project.Models
         public double SizeMm { get; set; }
         public Bitmap PreviewImage { get; set; } = default!;
         public Bitmap? PreprocessedImage { get; set; }
-        public double AreaMm2 { get; set; }
     }
 }

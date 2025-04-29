@@ -39,7 +39,8 @@
             <StackPanel Spacing="4" Margin="0,8,0,0">
                 <TextBlock Text="{Binding SelectedResult.X, StringFormat='X: {0} px'}"/>
                 <TextBlock Text="{Binding SelectedResult.Y, StringFormat='Y: {0} px'}"/>
-                <TextBlock Text="{Binding SelectedResult.AreaMm2, StringFormat='Area: {0:F2} mm²'}"/>
+                <TextBlock Text="{Binding SelectedResult.WidthMm,  StringFormat='Width: {0:F2} mm'}"/>
+                <TextBlock Text="{Binding SelectedResult.HeightMm, StringFormat='Height: {0:F2} mm'}"/>
                 <TextBlock Text="{Binding SelectedResult.Brightness, StringFormat='Brightness: {0:F1}'}"/>
                 <TextBlock Text="{Binding SelectedResult.Sharpness, StringFormat='Sharpness: {0:F1}'}"/>
             </StackPanel>

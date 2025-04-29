@@ -132,10 +132,17 @@ namespace Tapex_Project.Models
             // 4) 상세 정보 추가
             var rawResults = bag.ToArray();
 
-            double pixelSizeMm = cfg.PixelSizeMicrometer / 1000.0;
-            double areaPerPixelMm2 = pixelSizeMm * pixelSizeMm;
+            double pxToMm = cfg.PixelSizeMicrometer / 1000.0;
 
-            rawResults = rawResults.Where(r => (r.Width * r.Height * areaPerPixelMm2) >= cfg.MinDefectAreaMm2).ToArray();
+            rawResults = rawResults.Where(r =>
+            {
+                double wMm = r.Width * pxToMm;
+                double hMm = r.Height * pxToMm;
+                return wMm >= cfg.MinDefectWidthMm &&
+                       wMm <= cfg.MaxDefectWidthMm &&
+                       hMm >= cfg.MinDefectHeightMm &&
+                       hMm <= cfg.MaxDefectHeightMm;
+            }).ToArray();
 
             var detailed = new List<DefectResult>(rawResults.Length);
 
@@ -209,9 +216,10 @@ namespace Tapex_Project.Models
                     Type = r.Type,
                     Brightness = meanBri,
                     Sharpness = varLap,
-                    SizeMm = sizeMm,
+                    PixelSizeMicrometer = cfg.PixelSizeMicrometer,
                     PreviewImage = preview,
-                    PreprocessedImage = r.PreprocessedImage
+                    PreprocessedImage = r.PreprocessedImage,
+
                 });
             }
 

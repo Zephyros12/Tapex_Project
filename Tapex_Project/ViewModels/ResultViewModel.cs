@@ -17,7 +17,7 @@ namespace Tapex_Project.ViewModels
         /// <summary>정렬 기준</summary>
         public enum SortField
         {
-            Size,        // 면적(mm²)
+            WidthMm,     // 가로 길이 (mm) 기준
             Brightness,  // 밝기
             Sharpness    // 선명도
         }
@@ -28,7 +28,7 @@ namespace Tapex_Project.ViewModels
                   .Cast<SortField>()
                   .ToList();
 
-        private SortField _selectedSort = SortField.Size;
+        private SortField _selectedSort = SortField.WidthMm;
         /// <summary>현재 선택된 정렬 기준</summary>
         public SortField SelectedSort
         {
@@ -73,10 +73,10 @@ namespace Tapex_Project.ViewModels
         {
             IOrderedEnumerable<DefectResult> sorted = _selectedSort switch
             {
-                SortField.Size => _rawResults.OrderByDescending(r => r.AreaMm2),
+                SortField.WidthMm => _rawResults.OrderByDescending(r => r.WidthMm),
                 SortField.Brightness => _rawResults.OrderByDescending(r => r.Brightness),
                 SortField.Sharpness => _rawResults.OrderByDescending(r => r.Sharpness),
-                _ => _rawResults.OrderByDescending(r => r.AreaMm2),
+                _ => _rawResults.OrderByDescending(r => r.WidthMm),
             };
 
             Results.Clear();

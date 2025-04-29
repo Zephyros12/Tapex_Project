@@ -10,10 +10,17 @@
         /// </summary>
         public double PixelSizeMicrometer { get; } = 21.0;
 
-        /// <summary>
-        /// 최소 불량 면적 기준 (mm² 단위)
-        /// </summary>
-        public double MinDefectAreaMm2 { get; set; } = 0.01;
+        /// <summary>최소 ROI 가로 길이 (mm)</summary>
+        public double MinDefectWidthMm { get; set; } = 0.1;
+
+        /// <summary>최대 ROI 가로 길이 (mm)</summary>
+        public double MaxDefectWidthMm { get; set; } = 100.0;
+
+        /// <summary>최소 ROI 세로 길이 (mm)</summary>
+        public double MinDefectHeightMm { get; set; } = 0.1;
+
+        /// <summary>최대 ROI 세로 길이 (mm)</summary>
+        public double MaxDefectHeightMm { get; set; } = 100.0;
 
         /// <summary>
         /// 이진화 임계값 (밝기)
