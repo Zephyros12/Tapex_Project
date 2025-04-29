@@ -25,35 +25,52 @@ namespace Tapex_Project.Models.Detection
 
         public IReadOnlyList<DefectResult> Run(Mat srcGray, DetectionConfig cfg)
         {
+            // 0) 설정 및 결과 리스트 초기화
             var p = cfg.Dust;
             var results = new List<DefectResult>();
+            // 0) Structuring Element 정의
+            var elem = CvInvoke.GetStructuringElement(
+                ElementShape.Ellipse, new Size(15, 15), new Point(-1, -1));
 
-            // 1) 밝은 점 이진화 (ThresholdType.Binary)
-            using var binLight = new Mat();
-            CvInvoke.Threshold( srcGray, binLight, p.Threshold, 255, ThresholdType.Binary);
+            // 1) Top-Hat → 밝은 먼지 강조
+            Mat topHat = new Mat();
+            CvInvoke.MorphologyEx(
+                srcGray, topHat,
+                MorphOp.Tophat, elem, new Point(-1, -1),
+                1, BorderType.Reflect101, new MCvScalar());
 
-            // 2) 어두운 점 이진화 (ThresholdType.BinaryInv)
-            using var binDark = new Mat();
-            CvInvoke.Threshold( srcGray, binDark, p.Threshold, 255, ThresholdType.BinaryInv);
+            // 2) Black-Hat → 어두운 먼지 강조
+            Mat blackHat = new Mat();
+            CvInvoke.MorphologyEx(
+                srcGray, blackHat,
+                MorphOp.Blackhat, elem, new Point(-1, -1),
+                1, BorderType.Reflect101, new MCvScalar());
 
-            // 3) 밝은/어두운 마스크 합치기
-            using var bin = new Mat();
-            CvInvoke.BitwiseOr(binLight, binDark, bin);
+            // 3) 임계값(Threshold)으로 이진화
+            Mat binTop = new Mat(), binBlack = new Mat();
+            CvInvoke.Threshold(topHat, binTop, 30, 255, ThresholdType.Binary);
+            CvInvoke.Threshold(blackHat, binBlack, 30, 255, ThresholdType.Binary);
+            CvInvoke.Imwrite("result_binTop.png", binTop);
+            CvInvoke.Imwrite("result_binBlack.png", binBlack);
+            // 4) 두 마스크를 OR 연산
+            Mat binHybrid = new Mat();
+            CvInvoke.BitwiseOr(binTop, binBlack, binHybrid);
+            CvInvoke.Imwrite("result.png", binHybrid);
+            // 5) 작은 노이즈 제거용 열림 연산
+            var smallElem = CvInvoke.GetStructuringElement(
+                ElementShape.Ellipse, new Size(3, 3), new Point(-1, -1));
+            CvInvoke.MorphologyEx(
+                binHybrid, binHybrid,
+                MorphOp.Open, smallElem, new Point(-1, -1),
+                1, BorderType.Reflect101, new MCvScalar());
 
-            // 4) Morphology (노이즈 제거용, 선택 사항)
-            var kernel = CvInvoke.GetStructuringElement(
-                ElementShape.Rectangle,
-                new System.Drawing.Size(p.MorphKernel, p.MorphKernel),
-                new System.Drawing.Point(-1, -1));
-            CvInvoke.MorphologyEx( bin, bin, MorphOp.Open, kernel, new System.Drawing.Point(-1, -1), 1, BorderType.Default, new MCvScalar());
-
-            // 5) 컨투어 검출 & 면적 필터링
-            using var contours = new VectorOfVectorOfPoint();
+            // 6) 컨투어 검출 및 그리기
+            var contours = new VectorOfVectorOfPoint();
             CvInvoke.FindContours(
-                bin, contours, null,
-                RetrType.External,
-                ChainApproxMethod.ChainApproxSimple);
+                binHybrid, contours, null,
+                RetrType.External, ChainApproxMethod.ChainApproxSimple);
 
+          
             for (int i = 0; i < contours.Size; i++)
             {
                 var cnt = contours[i];
@@ -63,13 +80,8 @@ namespace Tapex_Project.Models.Detection
 
                 var rect = CvInvoke.BoundingRectangle(cnt);
 
-                int pad = 10;
-                int x0 = Math.Max(rect.X - pad, 0);
-                int y0 = Math.Max(rect.Y - pad, 0);
-                int x1 = Math.Min(rect.Right + pad, bin.Width);
-                int y1 = Math.Min(rect.Bottom + pad, bin.Height);
-                var defectArea = new Rectangle(x0, y0, x1 - x0, y1 - y0);
-                using var preCrop = new Mat(bin, defectArea);
+                // ROI 크롭
+                var preCrop = new Mat(binHybrid, rect);
                 var preBmp = DetectorHelpers.ConvertMatToBitmap(preCrop);
 
                 results.Add(new DefectResult
@@ -82,6 +94,8 @@ namespace Tapex_Project.Models.Detection
                     PreprocessedImage = preBmp
                 });
             }
+            
+
             return results;
         }
     }
