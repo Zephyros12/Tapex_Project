@@ -1,68 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Tapex_Project.Models;
+using Tapex_Project.Services;
 
 namespace Tapex_Project.Models.Detection
 {
+    /// <summary>
+    /// Hough 선 검출 기반 Crack Detector:
+    /// Border에 닿아 있는 선분만 검출
+    /// </summary>
     public sealed class CrackDetector : ISubDetector
     {
+        private readonly IProcessingOutputService _outputService;
+
+        public CrackDetector(IProcessingOutputService outputService)
+        {
+            _outputService = outputService;
+        }
+
         public IReadOnlyList<DefectResult> Run(Mat srcGray, DetectionConfig cfg)
         {
             var p = cfg.Crack;
             var results = new List<DefectResult>();
 
-            // 1) Canny 엣지 검출
+            // 1) Canny Edge
             using var edges = new Mat();
             CvInvoke.Canny(srcGray, edges, p.CannyThreshold1, p.CannyThreshold2);
+            _outputService.SaveMat("Crack_01_Canny.png", edges);
 
-            // 2) 허프 선 검출 (P1→P2)
-            // mm 단위 파라미터를 px로 변환
-            int minLenPx = (int)Math.Round(p.MinLineLengthMm * 1000.0 / cfg.PixelSizeMicrometer);
-            int maxGapPx = (int)Math.Round(p.MaxLineGapMm * 1000.0 / cfg.PixelSizeMicrometer);
+            // 2) HoughLinesP
+            double rho = 1.0;
+            double theta = Math.PI / 180.0;
+            int threshold = p.HoughThreshold;
+            double minLineLengthPx = p.MinLineLengthMm * (1000.0 / cfg.PixelSizeMicrometer);
+            double maxLineGapPx = p.MaxLineGapMm * (1000.0 / cfg.PixelSizeMicrometer);
 
-            var lines = CvInvoke.HoughLinesP(
-                edges,
-                1.0,
-                Math.PI / 180.0,
-                p.HoughThreshold,
-                minLenPx,
-                maxGapPx);
+            var lines = CvInvoke.HoughLinesP(edges, rho, theta, threshold, minLineLengthPx, maxLineGapPx);
 
-            // 3) 검출된 선분을 DefectResult로 변환
+            // 3) Border 선분만 DefectResult
+            var imageSize = new System.Drawing.Size(srcGray.Width, srcGray.Height);
             foreach (var l in lines)
             {
-                int x = Math.Min(l.P1.X, l.P2.X);
-                int y = Math.Min(l.P1.Y, l.P2.Y);
-                int w = Math.Abs(l.P1.X - l.P2.X);
-                int h = Math.Abs(l.P1.Y - l.P2.Y);
-
-                // 두께 보정
-                int half = p.LineWidthPx / 2;
-                x -= half; y -= half;
-                w += p.LineWidthPx; h += p.LineWidthPx;
-
-                // 길이(mm) 점수
-                double lengthPx = Math.Sqrt(w * w + h * h);
-                double lengthMm = lengthPx * cfg.PixelSizeMicrometer / 1000.0;
-
-                // 이미지 경계로부터 거리
-                double dist = Math.Min(
-                    Math.Min(x, srcGray.Width - (x + w)),
-                    Math.Min(y, srcGray.Height - (y + h)));
-
-                results.Add(new DefectResult
+                if (LineDetectionUtils.IsBorderLine(l, imageSize))
                 {
-                    X = x,
-                    Y = y,
-                    Width = w,
-                    Height = h,
-                    Score = lengthMm,
-                    Type = DefectType.Crack,
-                    DistanceFromEdge = dist
-                });
+                    var rect = new System.Drawing.Rectangle(
+                        x: (int)Math.Min(l.P1.X, l.P2.X),
+                        y: (int)Math.Min(l.P1.Y, l.P2.Y),
+                        width: (int)Math.Abs(l.P1.X - l.P2.X),
+                        height: (int)Math.Abs(l.P1.Y - l.P2.Y));
+
+                    results.Add(new DefectResult
+                    {
+                        X = rect.X,
+                        Y = rect.Y,
+                        Width = rect.Width,
+                        Height = rect.Height,
+                        Type = DefectType.Crack,
+                        Score = 1.0
+                    });
+                }
             }
 
             return results;

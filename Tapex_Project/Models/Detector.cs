@@ -92,6 +92,12 @@ namespace Tapex_Project.Models
 
             // 4) 상세 정보 추가
             var rawResults = bag.ToArray();
+
+            double pixelSizeMm = cfg.PixelSizeMicrometer / 1000.0;
+            double areaPerPixelMm2 = pixelSizeMm * pixelSizeMm;
+
+            rawResults = rawResults.Where(r => (r.Width * r.Height * areaPerPixelMm2) >= cfg.MinDefectAreaMm2).ToArray();
+            
             var detailed = new List<DefectResult>(rawResults.Length);
 
             foreach (var r in rawResults)

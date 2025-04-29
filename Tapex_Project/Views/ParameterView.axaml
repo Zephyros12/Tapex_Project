@@ -46,12 +46,12 @@
                                    Margin="0,0,0,8" VerticalAlignment="Center"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0"
-                                   Text="Min Defect Size (mm²):" Margin="0,0,8,8"
+                                   Text="Min Defect Area (mm²):" Margin="0,0,8,8"
                                    VerticalAlignment="Center"/>
                         <controls:NumericUpDown Grid.Row="1" Grid.Column="1"
-                                                Minimum="0.01" Maximum="1000"
+                                                Minimum="0" Maximum="1000"
                                                 Increment="0.01"
-                                                Value="{Binding Config.MinDefectSizeMm, Mode=TwoWay}"
+                                                Value="{Binding Config.MinDefectAreaMm2, Mode=TwoWay}"
                                                 Margin="0,0,0,8"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0"
