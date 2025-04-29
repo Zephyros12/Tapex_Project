@@ -25,7 +25,7 @@ namespace Tapex_Project.Models
         public double Sharpness { get; set; }
         public double SizeMm { get; set; }
         public Bitmap PreviewImage { get; set; } = default!;
-
         public Bitmap? PreprocessedImage { get; set; }
+        public double AreaMm2 { get; set; }
     }
 }
