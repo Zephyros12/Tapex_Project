@@ -1,4 +1,5 @@
 ﻿using Avalonia.Media.Imaging;
+using System.Collections.Generic;
 
 namespace Tapex_Project.Models
 {
@@ -24,5 +25,7 @@ namespace Tapex_Project.Models
         public double Sharpness { get; set; }
         public double SizeMm { get; set; }
         public Bitmap PreviewImage { get; set; } = default!;
+
+        public Bitmap? PreprocessedImage { get; set; }
     }
 }

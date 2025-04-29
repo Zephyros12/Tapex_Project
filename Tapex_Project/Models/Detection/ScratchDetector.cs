@@ -26,20 +26,14 @@ namespace Tapex_Project.Models.Detection
 
             // 1) Canny
             using var edges = new Mat();
-            CvInvoke.Canny(srcGray, edges,
-                p.CannyThreshold1, p.CannyThreshold2);
-            _out.SaveMat("Scratch_01_Canny.png", edges);
+            CvInvoke.Canny(srcGray, edges, p.CannyThreshold1, p.CannyThreshold2);
 
             // 2) 스켈레톤화
             using var skel = SkeletonUtils.Thinning(edges);
-            _out.SaveMat("Scratch_02_Skeleton.png", skel);
 
             // 3) 컨투어(연결 요소) 찾기
             using var contours = new VectorOfVectorOfPoint();
-            CvInvoke.FindContours(
-                skel, contours, null,
-                RetrType.External,
-                ChainApproxMethod.ChainApproxSimple);
+            CvInvoke.FindContours(skel, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
 
             for (int i = 0; i < contours.Size; i++)
             {
@@ -59,6 +53,15 @@ namespace Tapex_Project.Models.Detection
                 if (touchesBorder)
                     continue;
 
+                int pad = 10;
+                int x0 = Math.Max(rect.X - pad, 0);
+                int y0 = Math.Max(rect.Y - pad, 0);
+                int x1 = Math.Min(rect.Right + pad, skel.Width);
+                int y1 = Math.Min(rect.Bottom + pad, skel.Height);
+                var defectArea = new Rectangle(x0, y0, x1 - x0, y1 - y0);
+                using var preCrop = new Mat(skel, defectArea);
+                var preBmp = DetectorHelpers.ConvertMatToBitmap(preCrop);
+
                 results.Add(new DefectResult
                 {
                     X = rect.X,
@@ -66,7 +69,8 @@ namespace Tapex_Project.Models.Detection
                     Width = rect.Width,
                     Height = rect.Height,
                     Type = DefectType.Scratch,
-                    Score = length
+                    Score = length,
+                    PreprocessedImage = preBmp
                 });
             }
 

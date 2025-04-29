@@ -6,6 +6,7 @@ using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Tapex_Project.Models;
 using Tapex_Project.Services;
+using System.Drawing;
 
 namespace Tapex_Project.Models.Detection
 {
@@ -59,10 +60,17 @@ namespace Tapex_Project.Models.Detection
                     continue;
 
                 double peri = CvInvoke.ArcLength(contour, true);
-                double circ = peri == 0
-                    ? 0
-                    : 4 * Math.PI * area / (peri * peri);
+                double circ = peri == 0 ? 0 : 4 * Math.PI * area / (peri * peri);
                 if (circ < p.MinCircularity) continue;
+
+                int pad = 10;
+                int x0 = Math.Max(rect.X - pad, 0);
+                int y0 = Math.Max(rect.Y - pad, 0);
+                int x1 = Math.Min(rect.Right + pad, bin.Width);
+                int y1 = Math.Min(rect.Bottom + pad, bin.Height);
+                var defectArea = new Rectangle(x0, y0, x1 - x0, y1 - y0);
+                using var preCrop = new Mat(bin, defectArea);
+                var preBmp = DetectorHelpers.ConvertMatToBitmap(preCrop);
 
                 results.Add(new DefectResult
                 {
@@ -74,7 +82,8 @@ namespace Tapex_Project.Models.Detection
                         Math.Min(rect.X, srcGray.Width - rect.Right),
                         Math.Min(rect.Y, srcGray.Height - rect.Bottom)),
                     Score = circ,
-                    Type = DefectType.Bubble
+                    Type = DefectType.Bubble,
+                    PreprocessedImage = preBmp
                 });
             }
 

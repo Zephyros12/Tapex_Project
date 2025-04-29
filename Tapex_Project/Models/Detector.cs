@@ -22,17 +22,50 @@ namespace Tapex_Project.Models
 
         private readonly ISubDetector[] _subDetectors;
         private readonly IProcessingOutputService _outputService;
+        private readonly IPreprocessingService _preprocessor;
 
         public Detector(ISubDetector[] subDetectors,
-                        IProcessingOutputService outputService)
+                        IProcessingOutputService outputService,
+                        IPreprocessingService preprocessor)
         {
             _subDetectors = subDetectors;
             _outputService = outputService;
+            _preprocessor = preprocessor;
         }
 
         public IReadOnlyList<DefectResult> Run(Mat srcColor, DetectionConfig cfg)
         {
             _outputService.Initialize();
+
+            // ─ 전체 영상 전처리 결과 저장 ─
+            using var grayPreview = new Mat();
+            CvInvoke.CvtColor(srcColor, grayPreview, ColorConversion.Bgr2Gray);
+            _outputService.SaveMat("Full_01_Gray.png", grayPreview);
+
+            // 전체 마스크 (Blob) 생성 및 저장
+            var fullMask = _preprocessor.ExtractLargestBlobMask(grayPreview);
+            _outputService.SaveMat("Full_02_Mask.png", fullMask);
+
+            // Dust용 이진화 저장
+            using var fullDustBin = new Mat();
+            CvInvoke.Threshold(
+                grayPreview, fullDustBin,
+                cfg.Dust.Threshold, 255,
+                ThresholdType.Binary);
+            _outputService.SaveMat("Full_03_DustBinary.png", fullDustBin);
+
+            // Scratch/Crack용 Canny 에지 저장
+            using var fullEdges = new Mat();
+            CvInvoke.Canny(
+                grayPreview, fullEdges,
+                cfg.Scratch.CannyThreshold1,
+                cfg.Scratch.CannyThreshold2);
+            _outputService.SaveMat("Full_04_Canny.png", fullEdges);
+
+            // 스켈레톤화 저장
+            using var fullSkel = SkeletonUtils.Thinning(fullEdges);
+            _outputService.SaveMat("Full_05_Skeleton.png", fullSkel);
+
 
             // 1) 그레이 변환
             using var gray = new Mat();
@@ -78,7 +111,8 @@ namespace Tapex_Project.Models
                                         Height = r.Height,
                                         DistanceFromEdge = r.DistanceFromEdge,
                                         Score = r.Score,
-                                        Type = r.Type
+                                        Type = r.Type,
+                                        PreprocessedImage = r.PreprocessedImage
                                     });
                                 }
                             }
@@ -176,7 +210,8 @@ namespace Tapex_Project.Models
                     Brightness = meanBri,
                     Sharpness = varLap,
                     SizeMm = sizeMm,
-                    PreviewImage = preview
+                    PreviewImage = preview,
+                    PreprocessedImage = r.PreprocessedImage
                 });
             }
 

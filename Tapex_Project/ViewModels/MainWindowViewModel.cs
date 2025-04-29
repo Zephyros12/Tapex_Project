@@ -98,7 +98,7 @@ namespace Tapex_Project.ViewModels
                 new DustDetector(outputService),
                 new ScratchDetector(outputService),
                 new CrackDetector(outputService),
-            }, outputService);
+            }, outputService, Preprocessor);
 
             // DetectCmd: 비동기 실행, CanExecute = !IsBusy && 이미지 로드됨
             DetectCmd = new RelayCommand(
