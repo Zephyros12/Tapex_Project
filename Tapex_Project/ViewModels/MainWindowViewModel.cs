@@ -95,7 +95,7 @@ namespace Tapex_Project.ViewModels
             _detector = new Detector(new ISubDetector[]
             {
                 new BubbleDetector(),
-                new DustDetector(),
+                new DustDetector(outputService),
                 new ScratchDetector(outputService),
                 new CrackDetector(outputService),
             }, outputService);
