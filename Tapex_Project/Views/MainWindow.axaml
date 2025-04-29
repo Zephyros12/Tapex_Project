@@ -2,7 +2,7 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:views="clr-namespace:Tapex_Project.Views"
-    xmlns:ctrls="clr-namespace:Tapex_Project.Views.Controls"
+    xmlns:ctrls="clr-namespace:Tapex_Project.Views.Controls;assembly=Tapex_Project"
     xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
     x:Class="Tapex_Project.Views.MainWindow"
     x:DataType="vm:MainWindowViewModel"
@@ -12,19 +12,12 @@
     <Grid ColumnDefinitions="2*,1*">
         <!-- 좌측: Load + 이미지/Overlay -->
         <Grid Grid.Column="0" RowDefinitions="Auto,*" Background="Black">
-            <Button
-              Grid.Row="0"
-              Content="Load"
-              Command="{Binding ImageVM.LoadCmd}"
-              Margin="4"/>
-
-            <Viewbox
-              Grid.Row="1"
-              Stretch="Uniform"
-              Margin="4">
-                <!-- 선택된 불량만 그리는 DefectOverlay -->
+            <Button Grid.Row="0" Content="Load" Command="{Binding ImageVM.LoadCmd}" Margin="4"/>
+            <Viewbox Grid.Row="1" Stretch="Uniform" Margin="4">
                 <ctrls:DefectOverlay
                   SelectedResult="{Binding ResultVM.SelectedResult}"
+                  AllResults="{Binding AllResults}"
+                  ShowAll="{Binding ShowAllDefects}"
                   Scale="{Binding ImageVM.Current.ScaleFactor}"
                   Width="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Width}"
                   Height="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Height}">
@@ -38,53 +31,46 @@
             </Viewbox>
         </Grid>
 
-        <!-- 우측: Detect / Results / Detail / Parameters -->
+        <!-- 우측: ShowAll + Generate/Clear/Detect + Results/Detail/Parameters -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <StackPanel
-                Grid.Row="0"
-                Orientation="Horizontal"
-                Margin="4">
-                <Button
-                    Content="Generate Mask"
-                    Command="{Binding GenerateMaskCmd}"
-                    Margin="0,0,8,0"/>
-                <Button
-                    Content="Clear Mask"
-                    Command="{Binding ClearMaskCmd}"
-                    Margin="0,0,8,0"/>
-                <Button
-                  Content="Detect"
-                  Command="{Binding DetectCmd}"/>
+            <!-- Show All Defects 체크박스 + 버튼 그룹 -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="4">
+                <CheckBox Content="Show All Defects"
+                          IsChecked="{Binding ShowAllDefects}"
+                          Margin="0,0,16,0"/>
+                <Button Content="Generate Mask"
+                        Command="{Binding GenerateMaskCmd}"
+                        Margin="0,0,8,0"/>
+                <Button Content="Clear Mask"
+                        Command="{Binding ClearMaskCmd}"
+                        Margin="0,0,8,0"/>
+                <Button Content="Detect"
+                        Command="{Binding DetectCmd}"/>
             </StackPanel>
 
             <!-- 상태 메시지 -->
-            <TextBlock Grid.Row="0"
-                       Margin="4,32,4,4"
+            <TextBlock Grid.Row="1"
+                       Margin="4,4,4,8"
                        Foreground="Green"
                        FontWeight="Bold"
                        Text="{Binding StatusMessage}"/>
 
-            <views:ResultView
-              Grid.Row="1"
-              DataContext="{Binding ResultVM}"
-              Margin="4"/>
+            <!-- 검사 결과 리스트 -->
+            <views:ResultView Grid.Row="2" DataContext="{Binding ResultVM}" Margin="4"/>
 
-            <views:DetailView
-              Grid.Row="2"
-              DataContext="{Binding ResultVM}"
-              Margin="4"/>
+            <!-- 선택 결과 디테일 -->
+            <views:DetailView Grid.Row="3" DataContext="{Binding ResultVM}" Margin="4"/>
 
-            <views:ParameterView
-              Grid.Row="3"
-              DataContext="{Binding ParameterVM}"
-              Margin="4"/>
+            <!-- 파라미터 -->
+            <views:ParameterView Grid.Row="4" DataContext="{Binding ParameterVM}" Margin="4"/>
         </Grid>
     </Grid>
 </Window>

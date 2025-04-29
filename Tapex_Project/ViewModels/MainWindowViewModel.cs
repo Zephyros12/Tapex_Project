@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Emgu.CV;
@@ -53,12 +54,33 @@ namespace Tapex_Project.ViewModels
             private set => SetProperty(ref _statusMessage, value);
         }
 
+        private bool _showAllDefects;
+        public bool ShowAllDefects
+        {
+            get => _showAllDefects;
+            set
+            {
+                if (SetProperty(ref _showAllDefects, value))
+                {
+                    // 체크박스 토글 시에도 AllResults 바인딩 갱신
+                    RaisePropertyChanged(nameof(AllResults));
+                }
+            }
+        }
+
+        public IEnumerable<DefectResult> AllResults => ResultVM.Results;
+
         public MainWindowViewModel(IFilePickerService picker)
         {
             // 하위 VM 초기화
             ImageVM = new ImageViewModel(picker);
             ResultVM = new ResultViewModel();
             ParameterVM = new ParameterViewModel();
+
+            ResultVM.Results.CollectionChanged += (s, e) =>
+            {
+                RaisePropertyChanged(nameof(AllResults));
+            };
 
             Preprocessor = new PreprocessingService();
             GenerateMaskCmd = new RelayCommand(_ => GenerateMask(), _ => ImageVM.Current?.FullMat != null);
@@ -93,6 +115,8 @@ namespace Tapex_Project.ViewModels
                 }
             };
 
+            ShowAllDefects = false;
+
             // 선택된 결과 변경 시 ROI 업데이트
             ResultVM.PropertyChanged += (s, e) =>
             {
@@ -114,7 +138,6 @@ namespace Tapex_Project.ViewModels
 
             var gray = new Mat();
             CvInvoke.CvtColor(mat, gray, ColorConversion.Bgr2Gray);
-
             StoredMask = Preprocessor.ExtractLargestBlobMask(gray);
 
             StatusMessage = "Mask 생성 완료";
