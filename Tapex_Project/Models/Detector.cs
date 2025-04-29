@@ -44,7 +44,10 @@ namespace Tapex_Project.Models
 
             // 3) 병렬 검출
             var bag = new ConcurrentBag<DefectResult>();
-            var options = new ParallelOptions { MaxDegreeOfParallelism = Math.Max(Environment.ProcessorCount - 1, 1) };
+            var options = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Math.Max(Environment.ProcessorCount - 1, 1)
+            };
 
             Parallel.ForEach(
                 Partitioner.Create(allRects, EnumerablePartitionerOptions.NoBuffering),
@@ -97,7 +100,7 @@ namespace Tapex_Project.Models
             double areaPerPixelMm2 = pixelSizeMm * pixelSizeMm;
 
             rawResults = rawResults.Where(r => (r.Width * r.Height * areaPerPixelMm2) >= cfg.MinDefectAreaMm2).ToArray();
-            
+
             var detailed = new List<DefectResult>(rawResults.Length);
 
             foreach (var r in rawResults)
@@ -114,7 +117,6 @@ namespace Tapex_Project.Models
                 var colorBounds = new Rectangle(0, 0, srcColor.Width, srcColor.Height);
                 var safeGrayRect = Rectangle.Intersect(grayBounds, rawRect);
                 var safeColorRect = Rectangle.Intersect(colorBounds, rawRect);
-
                 if (safeGrayRect.Width <= 0 || safeGrayRect.Height <= 0 ||
                     safeColorRect.Width <= 0 || safeColorRect.Height <= 0)
                 {
@@ -140,8 +142,25 @@ namespace Tapex_Project.Models
                                 / 1000.0;
 
                 // 프리뷰
-                using var roiColor = new Mat(srcColor, safeColorRect);
-                var preview = ConvertMatToBitmap(roiColor);
+                const int previewPaddingPx = 50;
+                int x0 = Math.Max(rawRect.X - previewPaddingPx, 0);
+                int y0 = Math.Max(rawRect.Y - previewPaddingPx, 0);
+                int x1 = Math.Min(rawRect.Right + previewPaddingPx, srcColor.Width);
+                int y1 = Math.Min(rawRect.Bottom + previewPaddingPx, srcColor.Height);
+
+                int w = x1 - x0;
+                int h = y1 - y0;
+                if (w <= 0 || h <= 0)
+                    continue;
+
+                var contextRect = new Rectangle(x0, y0, w, h);
+                using var contextMat = new Mat(srcColor, contextRect);
+
+                var overlayRect = new Rectangle(
+                    rawRect.X - x0, rawRect.Y - y0, rawRect.Width, rawRect.Height);
+                CvInvoke.Rectangle(contextMat, overlayRect, new MCvScalar(0, 255, 255), thickness: 2);
+
+                var preview = ConvertMatToBitmap(contextMat);
 
                 detailed.Add(new DefectResult
                 {
@@ -174,12 +193,14 @@ namespace Tapex_Project.Models
         private static IEnumerable<Rectangle> CreateTiles(int width, int height)
         {
             for (int y = 0; y < height; y += TileSize - Overlap)
+            {
                 for (int x = 0; x < width; x += TileSize - Overlap)
                 {
                     int w = Math.Min(TileSize, width - x);
                     int h = Math.Min(TileSize, height - y);
                     yield return new Rectangle(x, y, w, h);
                 }
+            }
         }
     }
 }
