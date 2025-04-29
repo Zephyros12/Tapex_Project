@@ -64,6 +64,8 @@ namespace Tapex_Project.Models
 
                         foreach (var sub in _subDetectors)
                         {
+                            _outputService.SaveMat($"{sub.GetType().Name}_Input_{safeTileRect.X}_{safeTileRect.Y}.png", tile);
+
                             try
                             {
                                 foreach (var r in sub.Run(tile, cfg))

@@ -5,11 +5,19 @@ using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Tapex_Project.Models;
+using Tapex_Project.Services;
 
 namespace Tapex_Project.Models.Detection
 {
     public sealed class BubbleDetector : ISubDetector
     {
+        private readonly IProcessingOutputService _outputService;
+
+        public BubbleDetector(IProcessingOutputService outputService)
+        {
+            _outputService = outputService;
+        }
+
         public Mat? MorphKernel { get; set; }
 
         public IReadOnlyList<DefectResult> Run(Mat srcGray, DetectionConfig cfg)

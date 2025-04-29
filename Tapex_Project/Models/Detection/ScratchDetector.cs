@@ -1,5 +1,4 @@
-﻿// Models/Detection/ScratchDetector.cs
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
@@ -14,8 +13,11 @@ namespace Tapex_Project.Models.Detection
     public sealed class ScratchDetector : ISubDetector
     {
         private readonly IProcessingOutputService _out;
+
         public ScratchDetector(IProcessingOutputService outputService)
-            => _out = outputService;
+        {
+            _out = outputService;
+        }
 
         public IReadOnlyList<DefectResult> Run(Mat srcGray, DetectionConfig cfg)
         {

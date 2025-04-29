@@ -94,7 +94,7 @@ namespace Tapex_Project.ViewModels
             var outputService = new ProcessingOutputService();
             _detector = new Detector(new ISubDetector[]
             {
-                new BubbleDetector(),
+                new BubbleDetector(outputService),
                 new DustDetector(outputService),
                 new ScratchDetector(outputService),
                 new CrackDetector(outputService),
