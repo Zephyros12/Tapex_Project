@@ -21,7 +21,13 @@ namespace Tapex_Project.ViewModels
         public Mat? StoredMask
         {
             get => _storedMask;
-            private set => SetProperty(ref _storedMask, value);
+            private set
+            {
+                if (SetProperty(ref _storedMask, value))
+                {
+                    GenerateMaskCmd.NotifyCanExecuteChanged();
+                }
+            }
         }
 
         private bool _isBusy;
@@ -83,11 +89,12 @@ namespace Tapex_Project.ViewModels
             };
 
             Preprocessor = new PreprocessingService();
-            GenerateMaskCmd = new RelayCommand(_ => GenerateMask(), _ => ImageVM.Current?.FullMat != null);
+            GenerateMaskCmd = new RelayCommand(_ => GenerateMask(), _ => ImageVM.Current?.FullMat != null && StoredMask == null);
             ClearMaskCmd = new RelayCommand(_ =>
             {
                 StoredMask = null;
                 StatusMessage = "Mask 초기화 완료";
+                GenerateMaskCmd.NotifyCanExecuteChanged();
             });
 
             // 서비스 + Detector 조립
@@ -110,8 +117,8 @@ namespace Tapex_Project.ViewModels
             {
                 if (e.PropertyName == nameof(ImageViewModel.Current))
                 {
-                    DetectCmd.NotifyCanExecuteChanged();
                     GenerateMaskCmd.NotifyCanExecuteChanged();
+                    DetectCmd.NotifyCanExecuteChanged();
                 }
             };
 
@@ -141,6 +148,8 @@ namespace Tapex_Project.ViewModels
             StoredMask = Preprocessor.ExtractLargestBlobMask(gray);
 
             StatusMessage = "Mask 생성 완료";
+
+            GenerateMaskCmd.NotifyCanExecuteChanged();
         }
 
         /// <summary>
