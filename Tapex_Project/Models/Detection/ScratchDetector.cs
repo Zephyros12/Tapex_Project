@@ -1,68 +1,71 @@
-﻿using System;
+﻿// Models/Detection/ScratchDetector.cs
+using System;
 using System.Collections.Generic;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
-using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Tapex_Project.Models;
 using Tapex_Project.Services;
+using Emgu.CV.Structure;
+using System.Drawing;
 
 namespace Tapex_Project.Models.Detection
 {
-    /// <summary>
-    /// Hough 선 검출 기반 Scratch Detector:
-    /// Border가 아닌 선분만 검출
-    /// </summary>
     public sealed class ScratchDetector : ISubDetector
     {
-        private readonly IProcessingOutputService _outputService;
-
+        private readonly IProcessingOutputService _out;
         public ScratchDetector(IProcessingOutputService outputService)
-        {
-            _outputService = outputService;
-        }
+            => _out = outputService;
 
         public IReadOnlyList<DefectResult> Run(Mat srcGray, DetectionConfig cfg)
         {
             var p = cfg.Scratch;
             var results = new List<DefectResult>();
 
-            // 1) Canny Edge
+            // 1) Canny
             using var edges = new Mat();
-            CvInvoke.Canny(srcGray, edges, p.CannyThreshold1, p.CannyThreshold2);
-            _outputService.SaveMat("Scratch_01_Canny.png", edges);
+            CvInvoke.Canny(srcGray, edges,
+                p.CannyThreshold1, p.CannyThreshold2);
+            _out.SaveMat("Scratch_01_Canny.png", edges);
 
-            // 2) HoughLinesP
-            double rho = 1.0;
-            double theta = Math.PI / 180.0;
-            int threshold = p.HoughThreshold;
-            double minLineLengthPx = p.MinLengthMm * (1000.0 / cfg.PixelSizeMicrometer);
-            double maxLineGapPx = p.MaxLineGapMm  * (1000.0 / cfg.PixelSizeMicrometer);
+            // 2) 스켈레톤화
+            using var skel = SkeletonUtils.Thinning(edges);
+            _out.SaveMat("Scratch_02_Skeleton.png", skel);
 
-            var lines = CvInvoke.HoughLinesP(edges, rho, theta, threshold, minLineLengthPx, maxLineGapPx);
+            // 3) 컨투어(연결 요소) 찾기
+            using var contours = new VectorOfVectorOfPoint();
+            CvInvoke.FindContours(
+                skel, contours, null,
+                RetrType.External,
+                ChainApproxMethod.ChainApproxSimple);
 
-            // 3) Border 아닌 선분만 모아서 DefectResult
-            var imageSize = new System.Drawing.Size(srcGray.Width, srcGray.Height);
-            foreach (var l in lines)
+            for (int i = 0; i < contours.Size; i++)
             {
-                if (!LineDetectionUtils.IsBorderLine(l, imageSize))
-                {
-                    var rect = new System.Drawing.Rectangle(
-                        x: (int)Math.Min(l.P1.X, l.P2.X),
-                        y: (int)Math.Min(l.P1.Y, l.P2.Y),
-                        width:  (int)Math.Abs(l.P1.X - l.P2.X),
-                        height: (int)Math.Abs(l.P1.Y - l.P2.Y));
+                var cnt = contours[i];
+                double length = CvInvoke.ArcLength(cnt, false);
+                if (length < p.MinLineLengthMm * (1000.0 / cfg.PixelSizeMicrometer))
+                    continue;
 
-                    results.Add(new DefectResult
-                    {
-                        X = rect.X,
-                        Y = rect.Y,
-                        Width  = rect.Width,
-                        Height = rect.Height,
-                        Type   = DefectType.Scratch,
-                        Score  = 1.0   // 필요 시 컨피던스 로직 추가
-                    });
-                }
+                var rect = CvInvoke.BoundingRectangle(cnt);
+                // 내부만 → 테두리 닿지 않는 것만
+                var imgSize = new Size(srcGray.Width, srcGray.Height);
+                bool touchesBorder =
+                    rect.X <= 0 ||
+                    rect.Y <= 0 ||
+                    rect.Right >= imgSize.Width - 1 ||
+                    rect.Bottom >= imgSize.Height - 1;
+                if (touchesBorder)
+                    continue;
+
+                results.Add(new DefectResult
+                {
+                    X = rect.X,
+                    Y = rect.Y,
+                    Width = rect.Width,
+                    Height = rect.Height,
+                    Type = DefectType.Scratch,
+                    Score = length
+                });
             }
 
             return results;
