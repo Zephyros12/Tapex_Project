@@ -76,10 +76,9 @@
 				Header="Parameters"
 				ExpandDirection="Down"
 				VerticalAlignment="Top"
-				IsExpanded="{Binding IsParameterPanelExpanded, Mode=TwoWay}"
+				IsExpanded="False"
 				Margin="4"
-				
-				 HorizontalAlignment="Left">
+                HorizontalAlignment="Left">
 				<ScrollViewer
 					VerticalScrollBarVisibility ="Auto"
 					Height="200">
