@@ -53,6 +53,7 @@ namespace Tapex_Project.Views.Controls
             set => SetValue(AllResultsProperty, value);
         }
 
+        // 전체 보기 토글
         public static readonly StyledProperty<bool> ShowAllProperty =
             AvaloniaProperty.Register<DefectOverlay, bool>(
                 nameof(ShowAll),
@@ -88,19 +89,24 @@ namespace Tapex_Project.Views.Controls
             if (ShowAll)
             {
                 foreach (var d in AllResults)
-                {
                     Children.Add(CreateShape(d));
-                }
             }
             else if (SelectedResult is { } d)
             {
                 Children.Add(CreateShape(d));
             }
+
+            // 3) 선택된 하나만 코너 마커로 강조
+            if (ShowAll && SelectedResult is { } sel)
+            {
+                foreach (var marker in CreateHighlight(sel))
+                    Children.Add(marker);
+            }
         }
 
+        // 기존 사각형을 그리는 부분 (변경 없음)
         private Shape CreateShape(DefectResult d)
         {
-            // 타입별 색상
             var brush = d.Type switch
             {
                 DefectType.Bubble => Brushes.Red,
@@ -110,13 +116,11 @@ namespace Tapex_Project.Views.Controls
                 _ => Brushes.Gray
             };
 
-            // 원래 픽셀 좌표 → 뷰어 픽셀 좌표
             double x = d.X * Scale;
             double y = d.Y * Scale;
             double w = d.Width * Scale;
             double h = d.Height * Scale;
 
-            // Dust는 주변 패딩(원래 픽셀 단위)을 스케일 적용해서 더 크게
             if (d.Type == DefectType.Dust)
             {
                 var pad = DustPadding * Scale;
@@ -138,6 +142,58 @@ namespace Tapex_Project.Views.Controls
             Canvas.SetLeft(rect, x);
             Canvas.SetTop(rect, y);
             return rect;
+        }
+
+        // 선택된 ROI 위에 반투명 채우기 + 코너 마커(빨간 선) 생성
+        private IEnumerable<Shape> CreateHighlight(DefectResult sel)
+        {
+            double x = sel.X * Scale;
+            double y = sel.Y * Scale;
+            double w = sel.Width * Scale;
+            double h = sel.Height * Scale;
+
+            // (1) 반투명 흰색 채우기
+            var overlay = new Rectangle
+            {
+                Fill = new SolidColorBrush(Colors.White) { Opacity = 0.2 },
+                Width = w,
+                Height = h
+            };
+            Canvas.SetLeft(overlay, x);
+            Canvas.SetTop(overlay, y);
+            yield return overlay;
+
+            // (2) 코너 마커 길이: 20% or 최소 6px
+            double markerLen = Math.Max(Math.Min(w, h) * 0.2, 6);
+            var pen = new Pen(Brushes.White, 4);
+
+            // top-left
+            yield return LineAt(x, y, x + markerLen, y, pen);
+            yield return LineAt(x, y, x, y + markerLen, pen);
+
+            // top-right
+            yield return LineAt(x + w, y, x + w - markerLen, y, pen);
+            yield return LineAt(x + w, y, x + w, y + markerLen, pen);
+
+            // bottom-left
+            yield return LineAt(x, y + h, x + markerLen, y + h, pen);
+            yield return LineAt(x, y + h, x, y + h - markerLen, pen);
+
+            // bottom-right
+            yield return LineAt(x + w, y + h, x + w - markerLen, y + h, pen);
+            yield return LineAt(x + w, y + h, x + w, y + h - markerLen, pen);
+        }
+
+        // 편의 함수: 절대좌표 Line 생성
+        private static Line LineAt(double x1, double y1, double x2, double y2, Pen pen)
+        {
+            return new Line
+            {
+                StartPoint = new Point(x1, y1),
+                EndPoint = new Point(x2, y2),
+                Stroke = pen.Brush,
+                StrokeThickness = pen.Thickness
+            };
         }
     }
 }
