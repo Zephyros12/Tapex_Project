@@ -5,12 +5,13 @@
     x:Class="Tapex_Project.Views.DetailView"
     x:DataType="vm:ResultViewModel">
 
-    <Border Padding="8" Background="#222" CornerRadius="4">
+    <Border Padding="8" Background="#333" CornerRadius="4">
         <StackPanel Spacing="12">
             <TextBlock
               Text="Defect Details"
               FontSize="14"
-              FontWeight="Bold"/>
+              FontWeight="Bold"
+              Foreground="White"/>
 
             <!-- StackPanel으로 교체: 두 이미지 영역을 가로로 배치 -->
             <StackPanel Orientation="Horizontal" Spacing="16">
@@ -37,12 +38,18 @@
 
             <!-- 좌표·통계 정보 -->
             <StackPanel Spacing="4" Margin="0,8,0,0">
-                <TextBlock Text="{Binding SelectedResult.X, StringFormat='X: {0} px'}"/>
-                <TextBlock Text="{Binding SelectedResult.Y, StringFormat='Y: {0} px'}"/>
-                <TextBlock Text="{Binding SelectedResult.WidthMm,  StringFormat='Width: {0:F2} mm'}"/>
-                <TextBlock Text="{Binding SelectedResult.HeightMm, StringFormat='Height: {0:F2} mm'}"/>
-                <TextBlock Text="{Binding SelectedResult.Brightness, StringFormat='Brightness: {0:F1}'}"/>
-                <TextBlock Text="{Binding SelectedResult.Sharpness, StringFormat='Sharpness: {0:F1}'}"/>
+                <TextBlock Text="{Binding SelectedResult.X, StringFormat='X: {0} px'}"
+                           Foreground="White"/>
+                <TextBlock Text="{Binding SelectedResult.Y, StringFormat='Y: {0} px'}"
+                           Foreground="White"/>
+                <TextBlock Text="{Binding SelectedResult.WidthMm,  StringFormat='Width: {0:F2} mm'}"
+                           Foreground="White"/>
+                <TextBlock Text="{Binding SelectedResult.HeightMm, StringFormat='Height: {0:F2} mm'}"
+                           Foreground="White"/>
+                <TextBlock Text="{Binding SelectedResult.Brightness, StringFormat='Brightness: {0:F1}'}"
+                           Foreground="White"/>
+                <TextBlock Text="{Binding SelectedResult.Sharpness, StringFormat='Sharpness: {0:F1}'}"
+                           Foreground="White"/>
             </StackPanel>
         </StackPanel>
     </Border>
