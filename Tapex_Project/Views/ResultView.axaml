@@ -35,6 +35,20 @@
 					</DataTemplate>
 				</ComboBox.ItemTemplate>
 			</ComboBox>
+
+			<TextBlock Text="불량 타입:" VerticalAlignment="Center" Margin="16,0,0,0"/>
+			<ComboBox
+				Width="120"
+				ItemsSource="{Binding FilterOptions}"
+				SelectedItem="{Binding SelectedFilter}">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+
 		</StackPanel>
 
 		<!-- 2) 타입별 검출 개수 요약 -->
