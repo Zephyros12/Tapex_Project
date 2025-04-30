@@ -60,7 +60,7 @@ namespace Tapex_Project.ViewModels
             set => SetProperty(ref _isParameterPanelExpanded, value);
         }
 
-
+        
         private string? _statusMessage;
         public string? StatusMessage
         {
