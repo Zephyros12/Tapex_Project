@@ -26,11 +26,9 @@ namespace Tapex_Project.Models.Detection
             var p = cfg.Bubble;
             var results = new List<DefectResult>();
 
-
-         
             // 1) 배경 굴곡 제거 (수직방향으로 블러)
             var bg = new Mat();
-            CvInvoke.GaussianBlur(srcGray, bg, new Size(300, 300), 0); // 기본 blurKernel 크기 사용
+           CvInvoke.GaussianBlur(srcGray, bg, new Size(51, 51), 0); // 기본 blurKernel 크기 사용
             var noCurl = new Mat();
             CvInvoke.Subtract(srcGray, bg, noCurl);
 
@@ -89,46 +87,51 @@ namespace Tapex_Project.Models.Detection
             {
                 var contour = contours[i];
                 double area = CvInvoke.ContourArea(contour);
-                if (area < 2000) continue;
-
-                var rect = CvInvoke.BoundingRectangle(contour);
-                //if (rect.Width < p.MinWidth || rect.Height < p.MinHeight)
-                //    continue;
-
-
-
-                // 5) ROI 추출 및 검정색 비율 계산
-                Mat roi = new Mat(binary, rect);
-                // ROI에서 흰색 부분 계산 (255 값)
-                int whiteCount = CvInvoke.CountNonZero(roi); // 흰색 픽셀의 수
-                double whiteRatio = whiteCount / roi.Total; // 흰색 비율 계산
-
-                // ROI에서 검정색 부분 계산 (0 값)
-                Mat blackMat = new Mat();
-                CvInvoke.BitwiseNot(roi, blackMat);  // 흰색을 검정색으로 변환
-                int blackCount = CvInvoke.CountNonZero(blackMat); // 검정색 픽셀의 수
-                double blackRatio = blackCount / roi.Total; // 검정색 비율 계산
-
-                // 검정색 비율이 일정 값 이상이면 ROI를 그리도록 조건 추가
-                double blackThreshold = 0.9; // 검정색 비율 기준 (예: 90%)
-                if (blackRatio > blackThreshold)
+                if (area > 30)
                 {
-                    // 기포 정보 추가
-                    results.Add(new DefectResult
+                    var rect = CvInvoke.BoundingRectangle(contour);
+                    Mat roi = new Mat(binary, rect);
+                    // ROI 크롭
+                    var preCrop = new Mat(binary, rect);
+                    var preBmp = DetectorHelpers.ConvertMatToBitmap(preCrop);
+
+                    int whiteCount = CvInvoke.CountNonZero(roi);
+                    double whiteRatio = whiteCount / (double)roi.Total;
+
+                    Mat blackMat = new Mat();
+                    CvInvoke.BitwiseNot(roi, blackMat);
+                    int blackCount = CvInvoke.CountNonZero(blackMat);
+                    double blackRatio = blackCount / (double)roi.Total;
+
+                    double blackThreshold = 0.5;
+                    if (blackRatio > blackThreshold)
                     {
-                        X = rect.X,
-                        Y = rect.Y,
-                        Width = rect.Width,
-                        Height = rect.Height,
-                        DistanceFromEdge = Math.Min(
-                            Math.Min(rect.X, srcGray.Width - rect.Right),
-                            Math.Min(rect.Y, srcGray.Height - rect.Bottom)),
-                       // Score = circ,
-                        Type = DefectType.Bubble
-                    });
+                        results.Add(new DefectResult
+                        {
+                            X = rect.X,
+                            Y = rect.Y,
+                            Width = rect.Width,
+                            Height = rect.Height,
+                            DistanceFromEdge = Math.Min(
+                                Math.Min(rect.X, srcGray.Width - rect.Right),
+                                Math.Min(rect.Y, srcGray.Height - rect.Bottom)),
+                            Type = DefectType.Bubble
+                        });
+                    }
+
                 }
-            
-        }
+            }
+
+            // 6) 전체 결과 시각화
+            Mat visual = new Mat();
+            CvInvoke.CvtColor(srcGray, visual, ColorConversion.Gray2Bgr);
+
+            foreach (var r in results)
+            {
+                CvInvoke.Rectangle(visual, new Rectangle((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height), new MCvScalar(0, 0, 255), 2);
+            }
+
+            CvInvoke.Imwrite("전체결과.png", visual);
 
             return results;
         }
