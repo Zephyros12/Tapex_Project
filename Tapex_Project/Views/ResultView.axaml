@@ -65,6 +65,12 @@
             ItemsSource="{Binding Results}"
             SelectedItem="{Binding SelectedResult, Mode=TwoWay}"
             VerticalAlignment="Stretch"
-            ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            ScrollViewer.VerticalScrollBarVisibility="Auto" >
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding Type}" />
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
 	</Grid>
 </UserControl>
