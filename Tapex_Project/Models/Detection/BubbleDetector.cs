@@ -7,6 +7,7 @@ using Emgu.CV.Util;
 using Tapex_Project.Models;
 using Tapex_Project.Services;
 using System.Drawing;
+using Avalonia.Controls.Shapes;
 
 namespace Tapex_Project.Models.Detection
 {
@@ -26,6 +27,12 @@ namespace Tapex_Project.Models.Detection
             var p = cfg.Bubble;
             var results = new List<DefectResult>();
 
+            
+
+            Mat dst = new Mat();
+            // ConvertTo: dst = src * alpha + beta
+            srcGray.ConvertTo(dst, DepthType.Cv8U, 1.5, 0);
+            
             // 1) 배경 굴곡 제거 (수직방향으로 블러)
             var bg = new Mat();
            CvInvoke.GaussianBlur(srcGray, bg, new Size(51, 51), 0); // 기본 blurKernel 크기 사용
@@ -70,11 +77,11 @@ namespace Tapex_Project.Models.Detection
             var openElem = CvInvoke.GetStructuringElement(ElementShape.Ellipse, new Size(2, 2), new Point(-1, -1));
             CvInvoke.MorphologyEx(binary, binary, MorphOp.Open, openElem, new Point(-1, -1), 1, BorderType.Reflect101, new MCvScalar());
 
-            var closeElem = CvInvoke.GetStructuringElement(ElementShape.Ellipse, new Size(5, 5), new Point(-1, -1));
+            var closeElem = CvInvoke.GetStructuringElement(ElementShape.Ellipse, new Size(8, 8), new Point(-1, -1));
             CvInvoke.MorphologyEx(binary, binary, MorphOp.Close, closeElem, new Point(-1, -1), 1, BorderType.Reflect101, new MCvScalar());
 
             // 작은 영역 제거
-            CvInvoke.MorphologyEx(binary, binary, MorphOp.Open, openElem, new Point(-1, -1), 3, BorderType.Reflect101, new MCvScalar());
+            CvInvoke.MorphologyEx(binary, binary, MorphOp.Open, openElem, new Point(-1, -1), 5, BorderType.Reflect101, new MCvScalar());
 
 
             CvInvoke.Imwrite("binary1.png", binary);
@@ -129,7 +136,7 @@ namespace Tapex_Project.Models.Detection
 
             foreach (var r in results)
             {
-                CvInvoke.Rectangle(visual, new Rectangle((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height), new MCvScalar(0, 0, 255), 2);
+                CvInvoke.Rectangle(visual, new System.Drawing.Rectangle((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height), new MCvScalar(0, 0, 255), 2);
             }
 
             CvInvoke.Imwrite("전체결과.png", visual);
