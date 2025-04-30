@@ -1,14 +1,73 @@
-<Application xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Tapex_Project.App"
-             xmlns:local="using:Tapex_Project"
-             RequestedThemeVariant="Default">
+<Application
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:themes="clr-namespace:Avalonia.Themes.Fluent;assembly=Avalonia.Themes.Fluent"
+    xmlns:local="using:Tapex_Project"
+    x:Class="Tapex_Project.App"
+    RequestedThemeVariant="Light">
 
+    <!-- 뷰 로케이터 -->
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
-  
+
+    <!-- 전역 스타일 정의 -->
     <Application.Styles>
-        <FluentTheme />
+        <!-- 1) 항상 라이트 테마로 -->
+        <themes:FluentTheme/>
+
+        <!-- 2) Window 배경/글자색 -->
+        <Style Selector="Window">
+            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="Foreground" Value="#111111"/>
+        </Style>
+
+        <!-- 3) Panel (Grid, StackPanel 등) 배경 -->
+        <Style Selector="Panel">
+            <Setter Property="Background" Value="#E0E0E0"/>
+        </Style>
+
+        <!-- 4) Border 배경/테두리 -->
+        <Style Selector="Border">
+            <Setter Property="Background"    Value="#DDDDDD"/>
+            <Setter Property="BorderBrush"   Value="#AAAAAA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- 5) Button 스타일 -->
+        <Style Selector="Button">
+            <Setter Property="Background"      Value="#333333"/>
+            <Setter Property="Foreground"      Value="#FFFFFF"/>
+            <Setter Property="BorderBrush"     Value="#FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding"         Value="6,2"/>
+        </Style>
+        <Style Selector="Button:disabled">
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+
+        <!-- 6) ListBox, ScrollViewer (목록/스크롤 영역) -->
+        <Style Selector="ListBox, ScrollViewer">
+            <Setter Property="Background"    Value="#444444"/>
+            <Setter Property="Foreground"    Value="#FFFFFF"/>
+            <Setter Property="BorderBrush"   Value="#AAAAAA"/>
+        </Style>
+
+        <!-- 7) TabControl / TabItem -->
+        <Style Selector="TabControl">
+            <Setter Property="Background"    Value="#E0E0E0"/>
+            <Setter Property="Foreground"    Value="#111111"/>
+        </Style>
+        <Style Selector="TabItem">
+            <Setter Property="Background"    Value="#E0E0E0"/>
+            <Setter Property="Foreground"    Value="#111111"/>
+            <Setter Property="BorderBrush"   Value="#AAAAAA"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="TabItem:checked">
+            <Setter Property="Background"      Value="#FFFFFF"/>
+            <Setter Property="BorderBrush"     Value="#AAAAAA"/>
+            <Setter Property="BorderThickness" Value="1,1,0,0"/>
+        </Style>
     </Application.Styles>
 </Application>

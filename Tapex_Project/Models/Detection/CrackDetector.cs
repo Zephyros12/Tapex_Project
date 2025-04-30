@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Tapex_Project.Models;
 using Tapex_Project.Services;
-using Emgu.CV.Structure;
-using System.Drawing;
 
 namespace Tapex_Project.Models.Detection
 {
@@ -24,30 +24,52 @@ namespace Tapex_Project.Models.Detection
             var p = cfg.Crack;
             var results = new List<DefectResult>();
 
-            // 1) Canny
-            using var edges = new Mat();
-            CvInvoke.Canny(srcGray, edges, p.CannyThreshold1, p.CannyThreshold2);
+            // 1) 전역 히스토그램 평활화(EqualizeHist)
+            using var equalized = new Mat();
+            CvInvoke.EqualizeHist(srcGray, equalized);
+            _out.SaveMat("Crack_01_EqualizeHist.png", equalized);
 
-            // 2) 스켈레톤화
-            using var skel = SkeletonUtils.Thinning(edges);
+            // 2) TopHat / BlackHat
+            var kernel = CvInvoke.GetStructuringElement(ElementShape.Rectangle, new Size(31, 31), new Point(-1, -1));
+            using var tophat = new Mat();
+            using var blackhat = new Mat();
+            CvInvoke.MorphologyEx(equalized, tophat, MorphOp.Tophat, kernel, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+            CvInvoke.MorphologyEx(equalized, blackhat, MorphOp.Blackhat, kernel, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+            using var enhanced = new Mat();
+            CvInvoke.Add(tophat, blackhat, enhanced);
+            _out.SaveMat("Crack_02_Enhanced.png", enhanced);
 
-            // 3) 컨투어
+            // 3) 가우시안 블러
+            using var blurred = new Mat();
+            CvInvoke.GaussianBlur(enhanced, blurred, new Size(5, 5), 1.5);
+            _out.SaveMat("Crack_03_Blur.png", blurred);
+
+            // 4) Adaptive Threshold
+            using var bin = new Mat();
+            CvInvoke.AdaptiveThreshold(
+                blurred, bin, 255, AdaptiveThresholdType.GaussianC, ThresholdType.Binary, 51, -5);
+            _out.SaveMat("Crack_04_Threshold.png", bin);
+
+            // 5) 스켈레톤화
+            using var skel = SkeletonUtils.Thinning(bin);
+            _out.SaveMat("Crack_05_Skeleton.png", skel);
+
+            // 6) 컨투어 검출
             using var contours = new VectorOfVectorOfPoint();
-            CvInvoke.FindContours(
-                skel, contours, null,
-                RetrType.External,
-                ChainApproxMethod.ChainApproxSimple);
+            CvInvoke.FindContours(skel, contours, null, RetrType.External, ChainApproxMethod.ChainApproxSimple);
 
             var imgSize = new Size(srcGray.Width, srcGray.Height);
             for (int i = 0; i < contours.Size; i++)
             {
                 var cnt = contours[i];
                 double length = CvInvoke.ArcLength(cnt, false);
-                if (length < p.MinLineLengthMm * (1000.0 / cfg.PixelSizeMicrometer))
+                double minPix = p.MinLineLengthMm * (1000.0 / cfg.PixelSizeMicrometer);
+                if (length < minPix)
                     continue;
 
                 var rect = CvInvoke.BoundingRectangle(cnt);
-                // 테두리에 닿는 연결요소만 크랙
+
+                // 테두리에 닿는 것만 Crack
                 bool touchesBorder =
                     rect.X <= 0 ||
                     rect.Y <= 0 ||
@@ -61,8 +83,8 @@ namespace Tapex_Project.Models.Detection
                 int y0 = Math.Max(rect.Y - pad, 0);
                 int x1 = Math.Min(rect.Right + pad, skel.Width);
                 int y1 = Math.Min(rect.Bottom + pad, skel.Height);
-                var defectArea = new Rectangle(x0, y0, x1 - x0, y1 - y0);
-                using var preCrop = new Mat(skel, defectArea);
+                var roi = new Rectangle(x0, y0, x1 - x0, y1 - y0);
+                using var preCrop = new Mat(skel, roi);
                 var preBmp = DetectorHelpers.ConvertMatToBitmap(preCrop);
 
                 results.Add(new DefectResult
@@ -73,6 +95,7 @@ namespace Tapex_Project.Models.Detection
                     Height = rect.Height,
                     Type = DefectType.Crack,
                     Score = length,
+                    PixelSizeMicrometer = cfg.PixelSizeMicrometer,
                     PreprocessedImage = preBmp
                 });
             }
