@@ -9,12 +9,12 @@
     Title="Tapex Project"
     Width="1024" Height="768">
 
-    <Grid ColumnDefinitions="2*,1*">
-        <!-- 좌측: Load + 이미지/Overlay -->
-        <Grid Grid.Column="0" RowDefinitions="Auto,*" Background="Black">
-            <Button Grid.Row="0" Content="Load" Command="{Binding ImageVM.LoadCmd}" Margin="4"/>
-            <Viewbox Grid.Row="1" Stretch="Uniform" Margin="4">
-                <ctrls:DefectOverlay
+	<Grid ColumnDefinitions="2*,1*">
+		<!-- 좌측: Load + 이미지/Overlay -->
+		<Grid Grid.Column="0" RowDefinitions="Auto,*" Background="Black">
+			<Button Grid.Row="0" Content="Load" Command="{Binding ImageVM.LoadCmd}" Margin="4"/>
+			<Viewbox Grid.Row="1" Stretch="Uniform" Margin="4">
+				<ctrls:DefectOverlay
                   SelectedResult="{Binding ResultVM.SelectedResult}"
                   AllResults="{Binding AllResults}"
                   ShowAll="{Binding ShowAllDefects}"
@@ -22,54 +22,54 @@
                   Width="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Width}"
                   Height="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Height}">
 
-                    <!-- 자식으로 원본 축소판 이미지 삽입 -->
-                    <Image
+					<!-- 자식으로 원본 축소판 이미지 삽입 -->
+					<Image
                       Source="{Binding ImageVM.Current.DisplayBitmap}"
                       Width="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Width}"
                       Height="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Height}" />
-                </ctrls:DefectOverlay>
-            </Viewbox>
-        </Grid>
+				</ctrls:DefectOverlay>
+			</Viewbox>
+		</Grid>
 
-        <!-- 우측: ShowAll + Generate/Clear/Detect + Results/Detail/Parameters -->
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+		<!-- 우측: ShowAll + Generate/Clear/Detect + Results/Detail/Parameters -->
+		<Grid Grid.Column="1">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
 
-            <!-- Show All Defects 체크박스 + 버튼 그룹 -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="4">
-                <CheckBox Content="Show All Defects"
+			<!-- Show All Defects 체크박스 + 버튼 그룹 -->
+			<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="4">
+				<CheckBox Content="Show All Defects"
                           IsChecked="{Binding ShowAllDefects}"
                           Margin="0,0,16,0"/>
-                <Button Content="Generate Mask"
+				<Button Content="Generate Mask"
                         Command="{Binding GenerateMaskCmd}"
                         Margin="0,0,8,0"/>
-                <Button Content="Clear Mask"
+				<Button Content="Clear Mask"
                         Command="{Binding ClearMaskCmd}"
                         Margin="0,0,8,0"/>
-                <Button Content="Detect"
+				<Button Content="Detect"
                         Command="{Binding DetectCmd}"/>
-            </StackPanel>
+			</StackPanel>
 
-            <!-- 상태 메시지 -->
-            <TextBlock Grid.Row="1"
+			<!-- 상태 메시지 -->
+			<TextBlock Grid.Row="1"
                        Margin="4,4,4,8"
                        Foreground="Green"
                        FontWeight="Bold"
                        Text="{Binding StatusMessage}"/>
 
-            <!-- 검사 결과 리스트 -->
-            <views:ResultView Grid.Row="2" DataContext="{Binding ResultVM}" Margin="4"/>
+			<!-- 검사 결과 리스트 -->
+			<views:ResultView Grid.Row="2" DataContext="{Binding ResultVM}" Margin="4"/>
 
-            <!-- 선택 결과 디테일 -->
-            <views:DetailView Grid.Row="3" DataContext="{Binding ResultVM}" Margin="4"/>
+			<!-- 선택 결과 디테일 -->
+			<views:DetailView Grid.Row="3" DataContext="{Binding ResultVM}" Margin="4"/>
 
-            <!-- 파라미터 -->
+			<!-- 파라미터 -->
 			<!-- 파라미터를 접었다 펼치기 -->
 			<Expander
 				Grid.Row="4"
@@ -77,10 +77,18 @@
 				ExpandDirection="Down"
 				VerticalAlignment="Top"
 				IsExpanded="{Binding IsParameterPanelExpanded, Mode=TwoWay}"
-				Margin="4">
-            <views:ParameterView DataContext="{Binding ParameterVM}" 
+				Margin="4"
+				
+				 HorizontalAlignment="Left">
+				<ScrollViewer
+					VerticalScrollBarVisibility ="Auto"
+					Height="200">
+					<views:ParameterView DataContext="{Binding ParameterVM}"
 								 Margin="4"/>
+
+				</ScrollViewer>
+
 			</Expander>
-        </Grid>
-    </Grid>
+		</Grid>
+	</Grid>
 </Window>
