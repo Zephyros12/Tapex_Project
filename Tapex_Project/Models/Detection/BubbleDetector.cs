@@ -70,11 +70,11 @@ namespace Tapex_Project.Models.Detection
             var openElem = CvInvoke.GetStructuringElement(ElementShape.Ellipse, new Size(2, 2), new Point(-1, -1));
             CvInvoke.MorphologyEx(binary, binary, MorphOp.Open, openElem, new Point(-1, -1), 1, BorderType.Reflect101, new MCvScalar());
 
-            var closeElem = CvInvoke.GetStructuringElement(ElementShape.Ellipse, new Size(8, 8), new Point(-1, -1));
+            var closeElem = CvInvoke.GetStructuringElement(ElementShape.Ellipse, new Size(5, 5), new Point(-1, -1));
             CvInvoke.MorphologyEx(binary, binary, MorphOp.Close, closeElem, new Point(-1, -1), 1, BorderType.Reflect101, new MCvScalar());
 
             // 작은 영역 제거
-            CvInvoke.MorphologyEx(binary, binary, MorphOp.Open, openElem, new Point(-1, -1), 5, BorderType.Reflect101, new MCvScalar());
+            CvInvoke.MorphologyEx(binary, binary, MorphOp.Open, openElem, new Point(-1, -1), 3, BorderType.Reflect101, new MCvScalar());
 
 
             CvInvoke.Imwrite("binary1.png", binary);
@@ -87,7 +87,7 @@ namespace Tapex_Project.Models.Detection
             {
                 var contour = contours[i];
                 double area = CvInvoke.ContourArea(contour);
-                if (area > 30)
+                if (area > 10000)
                 {
                     var rect = CvInvoke.BoundingRectangle(contour);
                     Mat roi = new Mat(binary, rect);
@@ -115,7 +115,8 @@ namespace Tapex_Project.Models.Detection
                             DistanceFromEdge = Math.Min(
                                 Math.Min(rect.X, srcGray.Width - rect.Right),
                                 Math.Min(rect.Y, srcGray.Height - rect.Bottom)),
-                            Type = DefectType.Bubble
+                            Type = DefectType.Bubble,
+                             PreprocessedImage = preBmp
                         });
                     }
 
