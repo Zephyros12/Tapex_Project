@@ -14,6 +14,25 @@ namespace Tapex_Project.ViewModels
         // 원본 리스트 보관용
         private List<DefectResult> _rawResults = new();
 
+        // ★ 1) 필터용 옵션 (“All” + enum 이름들)
+        public IReadOnlyList<string> FilterOptions { get; }
+            = new[] { "All" }
+              .Concat(Enum.GetNames(typeof(DefectType)))
+              .ToList();
+
+        private string _selectedFilter = "All";
+        /// <summary>현재 선택된 불량 타입 필터 ("All" 이면 전체)</summary>
+        public string SelectedFilter
+        {
+            get => _selectedFilter;
+            set
+            {
+                if (SetProperty(ref _selectedFilter, value))
+                    ApplySorting();    // 필터 변경 시에도 정렬+필터 재적용
+            }
+        }
+
+
         /// <summary>정렬 기준</summary>
         public enum SortField
         {
@@ -71,12 +90,18 @@ namespace Tapex_Project.ViewModels
         // 선택된 정렬 기준에 따라 Results 컬렉션 갱신
         private void ApplySorting()
         {
+            var filtered = _selectedFilter == "All"
+            ? _rawResults
+            : _rawResults.Where(r => r.Type.ToString() == _selectedFilter);
+
+
+
             IOrderedEnumerable<DefectResult> sorted = _selectedSort switch
             {
-                SortField.WidthMm => _rawResults.OrderByDescending(r => r.WidthMm),
-                SortField.Brightness => _rawResults.OrderByDescending(r => r.Brightness),
-                SortField.Sharpness => _rawResults.OrderByDescending(r => r.Sharpness),
-                _ => _rawResults.OrderByDescending(r => r.WidthMm),
+                SortField.WidthMm => filtered.OrderByDescending(r => r.WidthMm),
+                SortField.Brightness => filtered.OrderByDescending(r => r.Brightness),
+                SortField.Sharpness => filtered.OrderByDescending(r => r.Sharpness),
+                _ => filtered.OrderByDescending(r => r.WidthMm),
             };
 
             Results.Clear();
