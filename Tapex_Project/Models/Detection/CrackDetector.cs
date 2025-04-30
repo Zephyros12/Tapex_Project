@@ -12,13 +12,6 @@ namespace Tapex_Project.Models.Detection
 {
     public sealed class CrackDetector : ISubDetector
     {
-        private readonly IProcessingOutputService _out;
-
-        public CrackDetector(IProcessingOutputService outputService)
-        {
-            _out = outputService;
-        }
-
         public IReadOnlyList<DefectResult> Run(Mat srcGray, DetectionConfig cfg)
         {
             var p = cfg.Crack;

@@ -16,13 +16,6 @@ namespace Tapex_Project.Models.Detection
     /// </summary>
     public sealed class DustDetector : ISubDetector
     {
-        private readonly IProcessingOutputService _outputService;
-
-        public DustDetector(IProcessingOutputService outputService)
-        {
-            _outputService = outputService;
-        }
-
         public IReadOnlyList<DefectResult> Run(Mat srcGray, DetectionConfig cfg)
         {
             // 0) 설정 및 결과 리스트 초기화
