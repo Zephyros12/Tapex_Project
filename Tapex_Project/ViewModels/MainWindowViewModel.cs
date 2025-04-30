@@ -106,14 +106,13 @@ namespace Tapex_Project.ViewModels
             });
 
             // 서비스 + Detector 조립
-            var outputService = new ProcessingOutputService();
             _detector = new Detector(new ISubDetector[]
             {
-                new BubbleDetector(outputService),
-                new DustDetector(outputService),
-                new ScratchDetector(outputService),
-                new CrackDetector(outputService),
-            }, outputService, Preprocessor);
+                new BubbleDetector(),
+                new DustDetector(),
+                new ScratchDetector(),
+                new CrackDetector(),
+            }, Preprocessor);
 
             // DetectCmd: 비동기 실행, CanExecute = !IsBusy && 이미지 로드됨
             DetectCmd = new RelayCommand(

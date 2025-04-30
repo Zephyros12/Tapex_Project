@@ -21,30 +21,23 @@ namespace Tapex_Project.Models
         private const int Overlap = 128;
 
         private readonly ISubDetector[] _subDetectors;
-        private readonly IProcessingOutputService _outputService;
         private readonly IPreprocessingService _preprocessor;
 
         public Detector(ISubDetector[] subDetectors,
-                        IProcessingOutputService outputService,
                         IPreprocessingService preprocessor)
         {
             _subDetectors = subDetectors;
-            _outputService = outputService;
             _preprocessor = preprocessor;
         }
 
         public IReadOnlyList<DefectResult> Run(Mat srcColor, DetectionConfig cfg)
         {
-            _outputService.Initialize();
-
             // ─ 전체 영상 전처리 결과 저장 ─
             using var grayPreview = new Mat();
             CvInvoke.CvtColor(srcColor, grayPreview, ColorConversion.Bgr2Gray);
-            _outputService.SaveMat("Full_01_Gray.png", grayPreview);
 
             // 전체 마스크 (Blob) 생성 및 저장
             var fullMask = _preprocessor.ExtractLargestBlobMask(grayPreview);
-            _outputService.SaveMat("Full_02_Mask.png", fullMask);
 
             // Dust용 이진화 저장
             using var fullDustBin = new Mat();
@@ -52,7 +45,6 @@ namespace Tapex_Project.Models
                 grayPreview, fullDustBin,
                 cfg.Dust.Threshold, 255,
                 ThresholdType.Binary);
-            _outputService.SaveMat("Full_03_DustBinary.png", fullDustBin);
 
             // Scratch/Crack용 Canny 에지 저장
             using var fullEdges = new Mat();
@@ -60,17 +52,14 @@ namespace Tapex_Project.Models
                 grayPreview, fullEdges,
                 cfg.Scratch.CannyThreshold1,
                 cfg.Scratch.CannyThreshold2);
-            _outputService.SaveMat("Full_04_Canny.png", fullEdges);
 
             // 스켈레톤화 저장
             using var fullSkel = SkeletonUtils.Thinning(fullEdges);
-            _outputService.SaveMat("Full_05_Skeleton.png", fullSkel);
 
 
             // 1) 그레이 변환
             using var gray = new Mat();
             CvInvoke.CvtColor(srcColor, gray, ColorConversion.Bgr2Gray);
-            _outputService.SaveMat("00_gray.png", gray);
 
             // 2) 타일 리스트 미리 생성
             var allRects = CreateTiles(gray.Width, gray.Height).ToList();
@@ -97,8 +86,6 @@ namespace Tapex_Project.Models
 
                         foreach (var sub in _subDetectors)
                         {
-                            _outputService.SaveMat($"{sub.GetType().Name}_Input_{safeTileRect.X}_{safeTileRect.Y}.png", tile);
-
                             try
                             {
                                 foreach (var r in sub.Run(tile, cfg))

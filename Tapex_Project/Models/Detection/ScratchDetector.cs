@@ -12,13 +12,6 @@ namespace Tapex_Project.Models.Detection
 {
     public sealed class ScratchDetector : ISubDetector
     {
-        private readonly IProcessingOutputService _out;
-
-        public ScratchDetector(IProcessingOutputService outputService)
-        {
-            _out = outputService;
-        }
-
         public IReadOnlyList<DefectResult> Run(Mat srcGray, DetectionConfig cfg)
         {
             var p = cfg.Scratch;
