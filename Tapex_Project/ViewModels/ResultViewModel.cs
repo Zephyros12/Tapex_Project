@@ -14,7 +14,7 @@ namespace Tapex_Project.ViewModels
         // 원본 리스트 보관용
         private List<DefectResult> _rawResults = new();
 
-        // ★ 1) 필터용 옵션 (“All” + enum 이름들)
+        // 1) 필터용 옵션 (“All” + enum 이름들)
         public IReadOnlyList<string> FilterOptions { get; }
             = new[] { "All" }
               .Concat(Enum.GetNames(typeof(DefectType)))
