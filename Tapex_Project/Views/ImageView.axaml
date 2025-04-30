@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
     x:Class="Tapex_Project.Views.ImageView"
+	xmlns:views="clr-namespace:Tapex_Project.Views" 
     x:DataType="vm:ImageViewModel">
 
     <Grid>
@@ -11,15 +12,17 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Load ¹öÆ° -->
+        <!-- Load ë²„íŠ¼ -->
         <Button Grid.Row="0"
                 Content="Load"
                 Command="{Binding LoadCmd}"
                 Margin="4" />
 
-        <!-- ÀÌ¹ÌÁö ºä¾î: Viewbox·Î ÀüÃ¼ ÀÌ¹ÌÁö ½ºÄÉÀÏ Á¶Á¤ -->
+        <!-- ì´ë¯¸ì§€ ë·°ì–´: Viewboxë¡œ ì „ì²´ ì´ë¯¸ì§€ ìŠ¤ì¼€ì¼ ì¡°ì • -->
         <Viewbox Grid.Row="1" Stretch="Uniform">
+			<views:ZoomBorder>
             <Image Source="{Binding Current.DisplayBitmap}" />
+			</views:ZoomBorder>
         </Viewbox>
     </Grid>
 </UserControl>
