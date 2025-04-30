@@ -70,7 +70,17 @@
             <views:DetailView Grid.Row="3" DataContext="{Binding ResultVM}" Margin="4"/>
 
             <!-- 파라미터 -->
-            <views:ParameterView Grid.Row="4" DataContext="{Binding ParameterVM}" Margin="4"/>
+			<!-- 파라미터를 접었다 펼치기 -->
+			<Expander
+				Grid.Row="4"
+				Header="Parameters"
+				ExpandDirection="Down"
+				VerticalAlignment="Top"
+				IsExpanded="{Binding IsParameterPanelExpanded, Mode=TwoWay}"
+				Margin="4">
+            <views:ParameterView DataContext="{Binding ParameterVM}" 
+								 Margin="4"/>
+			</Expander>
         </Grid>
     </Grid>
 </Window>

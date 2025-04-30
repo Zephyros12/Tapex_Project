@@ -53,6 +53,14 @@ namespace Tapex_Project.ViewModels
 
         private readonly Detector _detector;
 
+        private bool _isParameterPanelExpanded = true;
+        public bool IsParameterPanelExpanded
+        {
+            get => _isParameterPanelExpanded;
+            set => SetProperty(ref _isParameterPanelExpanded, value);
+        }
+
+
         private string? _statusMessage;
         public string? StatusMessage
         {
