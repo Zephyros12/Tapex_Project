@@ -3,28 +3,23 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:Tapex_Project.ViewModels"
     x:Class="Tapex_Project.Views.ImageView"
-    x:DataType="vm:ImageViewModel"
-	 xmlns:ctrls="clr-namespace:Tapex_Project.Views.Controls;assembly=Tapex_Project" >
+    x:DataType="vm:ImageViewModel">
 
 	<Grid>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<!-- 1) Load 버튼 (기존) -->
-		<Button
-		  Grid.Row="0"
-		  Content="Load"
-		  Command="{Binding LoadCmd}"
-		  Margin="4"/>
+		<!-- Load 버튼 -->
+		<Button Grid.Row="0"
+                Content="Load"
+                Command="{Binding LoadCmd}"
+                Margin="4" />
 
-		<!-- 2) 줌·팬 컨테이너 -->
-
-		<ctrls:ZoomableImage
-		  Grid.Row="1"
-		  Source="{Binding Current.DisplayBitmap}"
-		  ClipToBounds="True"/>
-		
+		<!-- 이미지 뷰어: Viewbox로 전체 이미지 스케일 조정 -->
+		<Viewbox Grid.Row="1" Stretch="Uniform">
+			<Image Source="{Binding Current.DisplayBitmap}" />
+		</Viewbox>
 	</Grid>
 </UserControl>

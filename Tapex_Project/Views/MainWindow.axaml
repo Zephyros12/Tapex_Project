@@ -14,19 +14,22 @@
 		<Grid Grid.Column="0" RowDefinitions="Auto,*" Background="Black">
 			<Button Grid.Row="0" Content="Load" Command="{Binding ImageVM.LoadCmd}" Margin="4"/>
 
-			<ctrls:ZoomBorder Grid.Row="1" Margin="4">
+			<Viewbox Grid.Row="1" Stretch="Uniform" Margin="4">
 				<ctrls:DefectOverlay
 				  SelectedResult="{Binding ResultVM.SelectedResult}"
 				  AllResults="{Binding AllResults}"
-				  ShowAll="{Binding ShowAllDefects}">
+				  ShowAll="{Binding ShowAllDefects}"
+				  Scale="{Binding ImageVM.Current.ScaleFactor}"
+				  Width="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Width}"
+				  Height="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Height}">
 
 					<Image
 					  Source="{Binding ImageVM.Current.DisplayBitmap}"
-					  Stretch="Uniform"
-					  HorizontalAlignment="Center"
-					  VerticalAlignment="Center"/>
+					  Width="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Width}"
+					  Height="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Height}"
+					  />
 				</ctrls:DefectOverlay>
-			</ctrls:ZoomBorder>
+			</Viewbox>
 		</Grid>
 
 		<!-- 우측: ShowAll + Generate/Clear/Detect + Results/Detail/Parameters -->
