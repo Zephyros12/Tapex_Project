@@ -1,0 +1,22 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:media="clr-namespace:Avalonia.Media;assembly=Avalonia.Visuals"
+    xmlns:controls="clr-namespace:Tapex_Project.Views.Controls;assembly=Tapex_Project"
+    x:Class="Tapex_Project.Views.Controls.ZoomableImage"
+	xmlns:ctrls="clr-namespace:Tapex_Project.Views.Controls;assembly=Tapex_Project" >
+
+	<!-- 투명한 컨테이너가 이벤트를 모두 받아 줌 -->
+	<Border x:Name="Container"
+			Background="Transparent"
+			ClipToBounds="True">
+		<!-- 이 이미지가 확대/축소 + 팬 대상 -->
+		<Image
+	 x:Name="Image"
+	 Stretch="Uniform"
+	 HorizontalAlignment="Center"
+	 VerticalAlignment="Center"
+	 Source="{Binding Source, RelativeSource={RelativeSource AncestorType=ctrls:ZoomableImage}}"/>
+
+	</Border>
+</UserControl>

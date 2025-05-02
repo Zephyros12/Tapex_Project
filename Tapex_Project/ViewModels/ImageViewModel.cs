@@ -12,7 +12,13 @@ using Emgu.CV.Util;
 namespace Tapex_Project.ViewModels
 {
     /// <summary>
-    /// ImageView의 ViewModel: 이미지 로드 및 Current 관리
+    /// 
+    /// 
+    /// 
+    /// 
+    /// 
+    /// 
+    /// View의 ViewModel: 이미지 로드 및 Current 관리
     /// </summary>
     public class ImageViewModel : ViewModelBase
     {

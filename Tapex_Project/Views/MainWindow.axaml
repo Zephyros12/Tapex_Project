@@ -13,20 +13,21 @@
 		<!-- 좌측: Load + 이미지/Overlay -->
 		<Grid Grid.Column="0" RowDefinitions="Auto,*" Background="Black">
 			<Button Grid.Row="0" Content="Load" Command="{Binding ImageVM.LoadCmd}" Margin="4"/>
+
 			<Viewbox Grid.Row="1" Stretch="Uniform" Margin="4">
 				<ctrls:DefectOverlay
-                  SelectedResult="{Binding ResultVM.SelectedResult}"
-                  AllResults="{Binding AllResults}"
-                  ShowAll="{Binding ShowAllDefects}"
-                  Scale="{Binding ImageVM.Current.ScaleFactor}"
-                  Width="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Width}"
-                  Height="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Height}">
+				  SelectedResult="{Binding ResultVM.SelectedResult}"
+				  AllResults="{Binding AllResults}"
+				  ShowAll="{Binding ShowAllDefects}"
+				  Scale="{Binding ImageVM.Current.ScaleFactor}"
+				  Width="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Width}"
+				  Height="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Height}">
 
-					<!-- 자식으로 원본 축소판 이미지 삽입 -->
 					<Image
-                      Source="{Binding ImageVM.Current.DisplayBitmap}"
-                      Width="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Width}"
-                      Height="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Height}" />
+					  Source="{Binding ImageVM.Current.DisplayBitmap}"
+					  Width="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Width}"
+					  Height="{Binding ImageVM.Current.DisplayBitmap.PixelSize.Height}"
+					  />
 				</ctrls:DefectOverlay>
 			</Viewbox>
 		</Grid>
