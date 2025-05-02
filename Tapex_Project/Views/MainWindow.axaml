@@ -49,6 +49,9 @@
 				<Button Content="Generate Mask"
                         Command="{Binding GenerateMaskCmd}"
                         Margin="0,0,8,0"/>
+                <Button Content="View Mask"
+                        Command="{Binding ImageVM.ViewMaskCmd}"
+                        Margin="0,0,8,0"/>
 				<Button Content="Clear Mask"
                         Command="{Binding ClearMaskCmd}"
                         Margin="0,0,8,0"/>
