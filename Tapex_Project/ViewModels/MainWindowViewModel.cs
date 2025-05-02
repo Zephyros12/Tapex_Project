@@ -101,6 +101,7 @@ namespace Tapex_Project.ViewModels
             ClearMaskCmd = new RelayCommand(_ =>
             {
                 StoredMask = null;
+                ImageVM.ClearMask();
                 StatusMessage = "Mask 초기화 완료";
                 GenerateMaskCmd.NotifyCanExecuteChanged();
             });
@@ -153,6 +154,7 @@ namespace Tapex_Project.ViewModels
             var gray = new Mat();
             CvInvoke.CvtColor(mat, gray, ColorConversion.Bgr2Gray);
             StoredMask = Preprocessor.ExtractLargestBlobMask(gray);
+            ImageVM.SetMask(StoredMask);
 
             StatusMessage = "Mask 생성 완료";
 
