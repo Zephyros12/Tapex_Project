@@ -29,18 +29,7 @@ public sealed class PreprocessingService : IPreprocessingService
         CvInvoke.MorphologyEx(bin, bin, MorphOp.Close, kernel, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
 
         // 3) 최대 Blob Mask 반환
-        var mask =  ExtractLargestBlobMask_Simple(bin);
-
-        const int shrinkPx = 20;                           // ← 깎을 픽셀 수
-        var ker = CvInvoke.GetStructuringElement(
-            ElementShape.Rectangle,
-            new Size(shrinkPx, shrinkPx),
-            new Point(-1, -1));
-
-        CvInvoke.Erode(mask, mask, ker, new Point(-1, -1),
-                       1, BorderType.Constant, new MCvScalar(0));
-
-        return mask;
+        return ExtractLargestBlobMask_Simple(bin);
     }
 
     // 기존 로직을 분리
