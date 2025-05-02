@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Tapex_Project.Models;
 
-public sealed class ImageLoaderService
+public sealed class ImageLoader
 {
     private readonly List<string> _paths = [];
     private int _index;
